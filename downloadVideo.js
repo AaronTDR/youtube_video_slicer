@@ -6,7 +6,7 @@ import path from "path";
 
 import readline from "readline";
 
-/* const downloadVideo = async (url, outputDirectory) => {
+const downloadVideoMarcosPromise = async (url, outputDirectory) => {
   // Check if the output directory exists
   if (!fs.existsSync(outputDirectory)) {
     console.error(`Output directory does not exist: ${outputDirectory}`);
@@ -129,40 +129,47 @@ import readline from "readline";
       ],
     }
   );
-  // Attach a listener for the close event
-  ffmpegProcess.on("close", () => {
-    console.log("done");
-    // Cleanup
-    process.stdout.write("\n\n\n\n");
-    clearInterval(progressbarHandle);
+
+  const ffmpegProcessPromise = new Promise((resolve, reject) => {
+    // Attach a listener for the close event
+    ffmpegProcess.on("close", () => {
+      console.log("done");
+      // Cleanup
+      process.stdout.write("\n\n\n\n");
+      clearInterval(progressbarHandle);
+      resolve(videoTitle);
+    });
+
+    // Link streams
+    // FFmpeg creates the transformer streams and we just have to insert / read data
+    ffmpegProcess.stdio[3].on("data", (chunk) => {
+      // Start the progress bar
+      if (!progressbarHandle)
+        progressbarHandle = setInterval(showProgress, progressbarInterval);
+      // Parse the param=value list returned by ffmpeg
+      const lines = chunk.toString().trim().split("\n");
+      const args = {};
+      for (const l of lines) {
+        const [key, value] = l.split("=");
+        args[key.trim()] = value.trim();
+      }
+      tracker.merged = args;
+    });
   });
 
-  // Link streams
-  // FFmpeg creates the transformer streams and we just have to insert / read data
-  ffmpegProcess.stdio[3].on("data", (chunk) => {
-    // Start the progress bar
-    if (!progressbarHandle)
-      progressbarHandle = setInterval(showProgress, progressbarInterval);
-    // Parse the param=value list returned by ffmpeg
-    const lines = chunk.toString().trim().split("\n");
-    const args = {};
-    for (const l of lines) {
-      const [key, value] = l.split("=");
-      args[key.trim()] = value.trim();
-    }
-    tracker.merged = args;
-  });
   audio.pipe(ffmpegProcess.stdio[4]);
   video.pipe(ffmpegProcess.stdio[5]);
+
+  return ffmpegProcessPromise;
 };
 
-downloadVideo(
-  "https://www.youtube.com/watch?v=jhvfYsYQXkc",
-  "C:/Users/aaron/Downloads/result"
-); */
+// downloadVideoMarcosPromise(
+//   "https://www.youtube.com/watch?v=jhvfYsYQXkc",
+//   "E:/projects/youtube_video_slicer/output"
+// );
 
 // Promises
-const downloadVideo = async (url, outputDirectory) => {
+const downloadVideoPromises = async (url, outputDirectory) => {
   return new Promise(async (resolve, reject) => {
     // Check if the output directory exists
     if (!fs.existsSync(outputDirectory)) {
@@ -294,4 +301,4 @@ const downloadVideo = async (url, outputDirectory) => {
   });
 };
 
-export default downloadVideo;
+export default downloadVideoMarcosPromise;

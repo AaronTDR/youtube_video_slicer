@@ -6,7 +6,7 @@ import path from "path";
 import validateTimestamps from "./validateTimestamps.js";
 import subtractTimestamps from "./subtractTimestamps.js";
 
-/* const captureAndCutVideo = (inputVideoPath, timestamps, outputFile) => {
+const captureAndCutVideoMarcosPromises = (inputVideoPath, timestamps, outputFile) => {
   const wrongIndices = validateTimestamps(timestamps);
 
   if (wrongIndices)
@@ -20,33 +20,41 @@ import subtractTimestamps from "./subtractTimestamps.js";
     fs.mkdirSync(outputFolderPath);
   }
 
+  const promises = [];
+
   timestamps.forEach((timestamp, index) => {
     const { start, end } = timestamp;
-    const outputFileName =
-      new Date().toISOString().replace(/:/g, "-") + `_segment_${index + 1}.mp4`;
+    const outputFileName = new Date().toISOString().replace(/:/g, "-") + `_segment_${index + 1}.mp4`;
     const outputFilePath = `${outputFolderPath}/${outputFileName}`;
-
-    ffmpeg(inputVideoPath)
+    const promise = new Promise((resolve, reject) => {
+      ffmpeg(inputVideoPath)
       .setStartTime(start)
       .setDuration(subtractTimestamps(end, start))
       .on("end", () => {
         console.log(`Segment ${index + 1} saved: ${outputFileName}`);
+        resolve();
       })
       .on("error", (err) => {
+        reject(`Error processing segment ${index + 1}: ${err.message}`);
         console.error(`Error processing segment ${index + 1}: ${err.message}`);
       })
       .save(outputFilePath);
+    });
+
+    promises.push(promise);
   });
+
+  return Promise.all(promises);
 };
 
-captureAndCutVideo(
-  "C:/Users/aaron/Downloads/result/Recorré el mundo en 1 minuto IMPRESIONANTE VIDEO.mp4",
-  [
-    { start: "00:00:00", end: "00:00:06" },
-    { start: "00:00:10", end: "00:00:15" },
-  ],
-  "C:/Users/aaron/Downloads/result"
-); */
+// captureAndCutVideoMarcosPromises(
+//   "C:/Users/aaron/Downloads/result/Recorré el mundo en 1 minuto IMPRESIONANTE VIDEO.mp4",
+//   [
+//     { start: "00:00:00", end: "00:00:06" },
+//     { start: "00:00:10", end: "00:00:15" },
+//   ],
+//   "C:/Users/aaron/Downloads/result"
+// );
 
 // Promises
 const captureAndCutVideo = (inputVideoPath, timestamps, outputFile) => {
@@ -112,4 +120,4 @@ const captureAndCutVideo = (inputVideoPath, timestamps, outputFile) => {
   });
 };
 
-export default captureAndCutVideo;
+export default captureAndCutVideoMarcosPromises;
