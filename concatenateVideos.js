@@ -70,8 +70,10 @@ import path from "path";
       );
     });
   });
-};  */
+};
+concatenateVideos("C:/Users/aaron/Downloads/result/"); */
 
+// Promises
 const concatenateVideos = (inputDirectory) => {
   return new Promise((resolve, reject) => {
     const outputFile = path.join(inputDirectory, "_final_test_1.mp4");

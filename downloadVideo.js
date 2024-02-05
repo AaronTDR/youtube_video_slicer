@@ -4,8 +4,9 @@ import cp from "child_process";
 import ffmpegPath from "ffmpeg-static";
 import path from "path";
 
-/* 
-const downloadVideo = async (url, outputDirectory) => {
+import readline from "readline";
+
+/* const downloadVideo = async (url, outputDirectory) => {
   // Check if the output directory exists
   if (!fs.existsSync(outputDirectory)) {
     console.error(`Output directory does not exist: ${outputDirectory}`);
@@ -154,8 +155,13 @@ const downloadVideo = async (url, outputDirectory) => {
   audio.pipe(ffmpegProcess.stdio[4]);
   video.pipe(ffmpegProcess.stdio[5]);
 };
-*/
 
+downloadVideo(
+  "https://www.youtube.com/watch?v=jhvfYsYQXkc",
+  "C:/Users/aaron/Downloads/result"
+); */
+
+// Promises
 const downloadVideo = async (url, outputDirectory) => {
   return new Promise(async (resolve, reject) => {
     // Check if the output directory exists
@@ -192,7 +198,7 @@ const downloadVideo = async (url, outputDirectory) => {
     const progressbarInterval = 1000;
 
     // show progress
-    /* const showProgress = () => {
+    const showProgress = () => {
       readline.cursorTo(process.stdout, 0);
       const toMB = (i) => (i / 1024 / 1024).toFixed(2);
 
@@ -235,7 +241,7 @@ const downloadVideo = async (url, outputDirectory) => {
         )} Minutes.`
       );
       readline.moveCursor(process.stdout, 0, -3);
-    }; */
+    };
 
     // Start the ffmpeg child process
     const ffmpegProcess = cp.spawn(
@@ -268,7 +274,7 @@ const downloadVideo = async (url, outputDirectory) => {
       console.log("done");
       clearInterval(progressbarHandle);
 
-      resolve("Download and processing completed successfully");
+      resolve(videoTitle);
     });
 
     ffmpegProcess.stdio[3].on("data", (chunk) => {

@@ -6,8 +6,7 @@ import path from "path";
 import validateTimestamps from "./validateTimestamps.js";
 import subtractTimestamps from "./subtractTimestamps.js";
 
-/* 
-const captureAndCutVideo = (inputVideoPath, timestamps, outputFile) => {
+/* const captureAndCutVideo = (inputVideoPath, timestamps, outputFile) => {
   const wrongIndices = validateTimestamps(timestamps);
 
   if (wrongIndices)
@@ -39,8 +38,17 @@ const captureAndCutVideo = (inputVideoPath, timestamps, outputFile) => {
       .save(outputFilePath);
   });
 };
-*/
 
+captureAndCutVideo(
+  "C:/Users/aaron/Downloads/result/Recorré el mundo en 1 minuto IMPRESIONANTE VIDEO.mp4",
+  [
+    { start: "00:00:00", end: "00:00:06" },
+    { start: "00:00:10", end: "00:00:15" },
+  ],
+  "C:/Users/aaron/Downloads/result"
+); */
+
+// Promises
 const captureAndCutVideo = (inputVideoPath, timestamps, outputFile) => {
   return new Promise((resolve, reject) => {
     const wrongIndices = validateTimestamps(timestamps);

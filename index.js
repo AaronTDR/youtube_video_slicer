@@ -2,7 +2,7 @@ import concatenateVideos from "./concatenateVideos.js";
 import captureAndCutVideo from "./captureAndCutVideo.js";
 import downloadVideo from "./downloadVideo.js";
 
-const url = "https://www.youtube.com/watch?v=K1gHajTNDTE";
+const url = "https://www.youtube.com/watch?v=jhvfYsYQXkc";
 const timestamps = [
   { start: "00:00:00", end: "00:00:06" },
   { start: "00:00:10", end: "00:00:15" },
@@ -14,11 +14,15 @@ const outputFile = "C:/Users/aaron/Downloads/result";
 
 const ytConcatenateSlices = (videoUrl, timestamps, outputFile) => {
   downloadVideo(videoUrl, outputFile)
-    .then((result) => {
-      return captureAndCutVideo(outputFile, timestamps, outputFile);
+    .then((titleName) => {
+      return captureAndCutVideo(
+        `${outputFile}/${titleName}.mp4`,
+        timestamps,
+        outputFile
+      );
     })
     .then((result) => {
-      return concatenateVideos(outputFile);
+      return concatenateVideos(`${outputFile}/`);
     })
     .then((concatenatedVideo) => {
       console.log(`Concatenated video: ${concatenatedVideo}`);
