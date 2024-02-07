@@ -1,9 +1,7 @@
 import concatenateVideos from "./concatenateVideos.js";
-import captureAndCutVideo from "./captureAndCutVideo/captureAndCutVideo.js";
-// import downloadVideoMarcosPromise from "./downloadVideo/downloadVideo.js";
-
-import downloadVideoYtDlp from "./downloadVideo/downloadVideo.js";
 import deleteTemporalVideo from "./deleteTemporalVideo.js";
+import captureAndCutVideo from "./captureAndCutVideo/captureAndCutVideo.js";
+import downloadVideoYtDlp from "./downloadVideo/downloadVideo.js";
 
 /*
  * directoryPath: Path of the directory where the temporary files will be stored and where the final result will be saved.
