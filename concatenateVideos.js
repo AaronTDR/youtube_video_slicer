@@ -3,6 +3,18 @@ import { exec } from "child_process";
 import path from "path";
 
 const concatenateVideosMarcosPromises = async (inputDirectory) => {
+  // Con el siguiente código se puede obtener el nombre original del video para guardar el archivo con ese nombre
+  /* 
+    const command = `yt-dlp --print-json --skip-download ${url}`;
+
+  const output = execSync(command).toString();
+
+  const jsonData = JSON.parse(output);
+
+  const title = jsonData.title;
+
+  console.log(`El título del video es: ${title}`);
+  */
   const outputFile = `${inputDirectory}_final_concatenated.mp4`;
 
   // Check if the output file already exists
@@ -21,10 +33,9 @@ const concatenateVideosMarcosPromises = async (inputDirectory) => {
         reject(err);
       } else resolve(files);
     });
-  })
+  });
 
   const files = await filesPromise;
-  
 
   // Filter only video files that contain _segment_{segment_number}' in their name
   const videos = files.filter((file) => /_segment_\d+/.test(file));
@@ -63,7 +74,7 @@ const concatenateVideosMarcosPromises = async (inputDirectory) => {
         console.error("Error when running ffmpeg:", error);
         return reject(error);
       }
-  
+
       // Change file names after concatenation, flag '_ segment _' to '_ concatenated _'
       videos.forEach((file) => {
         const filePath = `${inputDirectory}${file}`;
@@ -71,7 +82,7 @@ const concatenateVideosMarcosPromises = async (inputDirectory) => {
         fs.renameSync(filePath, `${inputDirectory}${newFileName}`);
         console.log(`Renowned: ${filePath} -> ${inputDirectory}${newFileName}`);
       });
-  
+
       console.log(
         `Videos successfully concatenated. New video created: ${outputFile}`
       );
@@ -83,7 +94,7 @@ const concatenateVideosMarcosPromises = async (inputDirectory) => {
 // concatenateVideos("C:/Users/aaron/Downloads/result/");
 
 // Promises
-const concatenateVideos = (inputDirectory) => {
+/* const concatenateVideos = (inputDirectory) => {
   return new Promise((resolve, reject) => {
     const outputFile = path.join(inputDirectory, "_final_test_1.mp4");
 
@@ -159,5 +170,5 @@ const concatenateVideos = (inputDirectory) => {
     });
   });
 };
-
+ */
 export default concatenateVideosMarcosPromises;
