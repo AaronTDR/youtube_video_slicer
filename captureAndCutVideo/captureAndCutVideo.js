@@ -1,9 +1,7 @@
 import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
-
 import path from "path";
 
-import validateTimestamps from "./validateTimestamps.js";
 import subtractTimestamps from "./subtractTimestamps.js";
 
 const captureAndCutVideo = (
@@ -13,16 +11,7 @@ const captureAndCutVideo = (
   videoFormat,
   outputDirectory
 ) => {
-  return new Promise((resolve, reject) => {
-    const wrongIndices = validateTimestamps(timestamps);
-
-    if (wrongIndices) {
-      console.error(
-        `start property cannot be greater than end property, error in timestamps position: ${wrongIndices.indices}`
-      );
-      return;
-    }
-
+  return new Promise((resolve) => {
     if (!fs.existsSync(outputDirectory)) {
       console.error("Output folder does not exist");
       return;
