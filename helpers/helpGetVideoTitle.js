@@ -5,12 +5,17 @@ const helpGetVideoTitle = async (url) => {
     // Get video name
     const command = `yt-dlp --print-json --skip-download ${url}`;
     const output = execSync(command).toString();
-    const jsonData = await JSON.parse(output);
-    const title = jsonData.title;
 
-    return title;
-  } catch (error) {
-    console.error("Error extracting video title: ", error.message);
+    try {
+      const jsonData = JSON.parse(output);
+      const title = jsonData.title;
+      return title;
+    } catch (jsonError) {
+      throw new Error(`Error parsing JSON: ${jsonError.message}`);
+    }
+  } catch (execError) {
+    console.error("Error extracting video title:", execError.message);
+    throw execError; // Propagate the error
   }
 };
 
