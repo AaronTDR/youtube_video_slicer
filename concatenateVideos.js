@@ -1,8 +1,9 @@
 import fs from "fs";
-import { exec, execSync } from "child_process";
+import { exec } from "child_process";
 import path from "path";
 
 import helpGetVideoTitle from "./helpers/helpGetVideoTitle.js";
+import { removeSpecialCharacters, getFiles } from "./utils/functions.js";
 
 const concatenateVideosMarcosPromises = async (
   inputDirectory,
@@ -12,26 +13,13 @@ const concatenateVideosMarcosPromises = async (
   // Get video name
   const title = await helpGetVideoTitle(url);
 
-  // Reemplaza caracteres especiales con guiones bajos
-  const removeSpecialCharacters = (inputString) => {
-    const replaceSpacesRegex = /\s+/g;
-    const removeSpecialCharactersRegex = /[^\p{Letter}\d\-_]/gu;
-
-    const replacedSpaces = inputString.replace(replaceSpacesRegex, "_");
-
-    const cleanedString = replacedSpaces.replace(
-      removeSpecialCharactersRegex,
-      ""
-    );
-
-    return cleanedString;
-  };
-
+  // Replace special characters with underscores
   const cleanedTitle = removeSpecialCharacters(title);
 
+  // Construct the output file name using the cleaned video title
   const outputFileName = path.join(
-    inputDirectory,
-    `_final_${cleanedTitle}${videoExtension}`
+    inputDirectory, // The directory where the input files are located
+    `_final_${cleanedTitle}${videoExtension}` // The final output file name
   );
 
   // Check if the output file already exists
@@ -42,22 +30,13 @@ const concatenateVideosMarcosPromises = async (
     return;
   }
 
-  // Get list of files in folder
-  const filesPromise = new Promise((resolve, reject) => {
-    fs.readdir(inputDirectory, (err, files) => {
-      if (err) {
-        console.error("Error reading folder:", err);
-        reject(err);
-      } else resolve(files);
-    });
-  });
-
-  const files = await filesPromise;
+  // Get list of videos in folder
+  const videoFiles = await getFiles(inputDirectory);
 
   // Filter only video files that contain _segment_{segment_number}' in their name
-  const videos = files.filter((file) => /_segment_\d+/.test(file));
+  const videos = videoFiles.filter((video) => /_segment_\d+/.test(video));
 
-  // Check if there are at least two videos to concatenate
+  // Validate if there are at least two videos to concatenate
   if (videos.length < 2) {
     console.error("At least two videos are needed to concatenate.");
     return;
@@ -86,10 +65,11 @@ const concatenateVideosMarcosPromises = async (
   const commandFFmpeg = `ffmpeg -f concat -safe 0 -i ${concatenateList} -c copy ${outputFileName}`;
 
   const execPromise = new Promise((resolve, reject) => {
-    exec(commandFFmpeg, (error) => {
+    exec(commandFFmpeg, (error, stdout, stderr) => {
       if (error) {
         console.error("Error when running ffmpeg:", error);
-        return reject(error);
+        console.error("FFmpeg stderr:", stderr);
+        return reject(new Error(`Error when running ffmpeg: ${error.message}`));
       }
 
       // Change file names after concatenation, flag '_ segment _' to '_ concatenated _'
@@ -103,6 +83,8 @@ const concatenateVideosMarcosPromises = async (
       console.log(
         `Videos successfully concatenated. New video created: ${outputFileName}`
       );
+      // delete concatenation list file
+      fs.unlinkSync(concatenateList);
       resolve(outputFileName);
     });
   });

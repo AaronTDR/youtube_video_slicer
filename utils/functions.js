@@ -1,3 +1,5 @@
+import fs from "fs";
+
 // Returns the length of the video in HH:MM:SS format
 export const formatTime = (time) => {
   const removeColon = (inputString) => inputString.replace(/:/g, "");
@@ -59,3 +61,31 @@ export const secondsToTimestamp = (seconds) => {
 
   return `${format(hours)}:${format(minutes)}:${format(resultingSeconds)}`;
 };
+
+// Replace special characters with underscores
+export const removeSpecialCharacters = (inputString) => {
+  const replaceSpacesRegex = /\s+/g;
+  const removeSpecialCharactersRegex = /[^\p{Letter}\d\-_]/gu;
+
+  const replacedSpaces = inputString.replace(replaceSpacesRegex, "_");
+
+  const cleanedString = replacedSpaces.replace(
+    removeSpecialCharactersRegex,
+    ""
+  );
+
+  return cleanedString;
+};
+
+// Get list of files in folder
+export const getFiles = (directoryPth) =>
+  new Promise((resolve, reject) => {
+    fs.readdir(directoryPth, (err, files) => {
+      if (err) {
+        console.error("Error reading folder:", err.message);
+        reject(err);
+      } else {
+        resolve(files);
+      }
+    });
+  });
