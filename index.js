@@ -1,10 +1,11 @@
 import concatenateVideos from "./concatenateVideos.js";
-import helpDeleteVideo from "./helpers/helpDeleteVideo.js";
 import captureAndCutVideo from "./captureAndCutVideo/captureAndCutVideo.js";
 import downloadVideoYtDlp from "./downloadVideo/downloadVideo.js";
 
 import validateTimestamps from "./validations/validateTimestamps.js";
 import validateMaxDuration from "./validations/validateMaxDuration.js";
+
+import { deleteFile } from "./utils/functions.js";
 
 /*
  * directoryPath: Path of the directory where the temporary files will be stored and where the final result will be saved.
@@ -67,7 +68,7 @@ const ytConcatenateSlices = async (videoUrl, timestamps, directoryPath) => {
     console.log("after captureAndCutVideo\n\n");
     await Promise.all(promises);
     // Delete temporary video
-    await helpDeleteVideo(temporalVideoPath);
+    await deleteFile(temporalVideoPath);
     console.log("temporary video deleted");
 
     console.log("before concatenateVideos");
