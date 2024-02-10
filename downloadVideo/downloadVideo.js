@@ -21,7 +21,6 @@ const downloadVideoYtDlp = (url, outputDirectory) => {
         console.log("Video downloaded successfully");
         // Get extension file
         const videoExtension = getExtension(outputDirectory, temporalVideoName);
-        console.log("🚀 ~ ytDlpProcess.on ~ videoExtension:", videoExtension);
 
         resolve({ temporalVideoName, videoExtension });
       } else {

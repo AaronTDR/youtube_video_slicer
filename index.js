@@ -27,12 +27,9 @@ const timestamps = [
      { start: "00:05:30", end: "00:06:00" },
   { start: "00:10:00", end: "00:16:48" }, */
 ];
-// const outputFile = "E:/projects/youtube_video_slicer/output";
-const directoryPath = "C:/users/aaron/downloads/test/";
+const directoryPath = "E:/projects/youtube_video_slicer/output";
+// const directoryPath = "C:/users/aaron/downloads/test/";
 
-/*
- - ¿Qué pasa si la marca de tiempo dura más que el video?
-*/
 const ytConcatenateSlices = async (videoUrl, timestamps, directoryPath) => {
   // Validates that in all timestamps the start property is less than the end property
   const wrongIndices = validateTimestamps(timestamps);
@@ -51,16 +48,12 @@ const ytConcatenateSlices = async (videoUrl, timestamps, directoryPath) => {
   }
 
   try {
-    console.log("before downloadVideo");
     // helpGetVideoTitle and downloadVideoYtDlp are called
     const [title, { temporalVideoName, videoExtension }] = await Promise.all([
       helpGetVideoTitle(videoUrl),
       downloadVideoYtDlp(videoUrl, directoryPath),
     ]);
-    console.log("Processing segments...\n\n");
-    console.log("after downloadVideo\n\n");
 
-    console.log("before captureAndCutVideo");
     const { promises, temporalVideoPath } = await captureAndCutVideo(
       directoryPath,
       timestamps,
@@ -68,19 +61,17 @@ const ytConcatenateSlices = async (videoUrl, timestamps, directoryPath) => {
       videoExtension,
       directoryPath
     );
-    console.log("after captureAndCutVideo\n\n");
+
     await Promise.all(promises);
+
     // Delete temporary video
     await deleteFile(temporalVideoPath);
-    console.log("temporary video deleted");
 
-    console.log("before concatenateVideos");
     const concatenatedVideo = await concatenateVideos(
       directoryPath,
       title,
       videoExtension
     );
-    console.log("after concatenateVideos\n\n");
 
     console.log("Concatenated video: ", concatenatedVideo);
   } catch (error) {
