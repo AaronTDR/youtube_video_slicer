@@ -5,6 +5,8 @@ import downloadVideoYtDlp from "./downloadVideo/downloadVideo.js";
 import validateTimestamps from "./validations/validateTimestamps.js";
 import validateMaxDuration from "./validations/validateMaxDuration.js";
 
+import helpGetVideoTitle from "./helpers/helpGetVideoTitle.js";
+
 import { deleteFile } from "./utils/functions.js";
 
 /*
@@ -50,10 +52,11 @@ const ytConcatenateSlices = async (videoUrl, timestamps, directoryPath) => {
 
   try {
     console.log("before downloadVideo");
-    const { temporalVideoName, videoExtension } = await downloadVideoYtDlp(
-      videoUrl,
-      directoryPath
-    );
+    // helpGetVideoTitle and downloadVideoYtDlp are called
+    const [title, { temporalVideoName, videoExtension }] = await Promise.all([
+      helpGetVideoTitle(videoUrl),
+      downloadVideoYtDlp(videoUrl, directoryPath),
+    ]);
     console.log("Processing segments...\n\n");
     console.log("after downloadVideo\n\n");
 
@@ -74,7 +77,7 @@ const ytConcatenateSlices = async (videoUrl, timestamps, directoryPath) => {
     console.log("before concatenateVideos");
     const concatenatedVideo = await concatenateVideos(
       directoryPath,
-      videoUrl,
+      title,
       videoExtension
     );
     console.log("after concatenateVideos\n\n");

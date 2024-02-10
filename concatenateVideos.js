@@ -7,12 +7,9 @@ import { removeSpecialCharacters, getFiles } from "./utils/functions.js";
 
 const concatenateVideosMarcosPromises = async (
   inputDirectory,
-  url,
+  title,
   videoExtension
 ) => {
-  // Get video name
-  const title = await helpGetVideoTitle(url);
-
   // Replace special characters with underscores
   const cleanedTitle = removeSpecialCharacters(title);
 
