@@ -2,16 +2,15 @@ import fs from "fs";
 import { exec, execSync } from "child_process";
 import path from "path";
 
+import helpGetVideoTitle from "./helpers/helpGetVideoTitle.js";
+
 const concatenateVideosMarcosPromises = async (
   inputDirectory,
   url,
   videoExtension
 ) => {
   // Get video name
-  const command = `yt-dlp --print-json --skip-download ${url}`;
-  const output = execSync(command).toString();
-  const jsonData = JSON.parse(output);
-  const title = jsonData.title;
+  const title = await helpGetVideoTitle(url);
 
   // Reemplaza caracteres especiales con guiones bajos
   const removeSpecialCharacters = (inputString) => {
