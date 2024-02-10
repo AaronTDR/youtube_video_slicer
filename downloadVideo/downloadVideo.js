@@ -1,6 +1,6 @@
 import cp from "child_process";
 
-import getExtension from "./getExtension.js";
+import { getExtension } from "../utils/functions.js";
 
 const downloadVideoYtDlp = (url, outputDirectory) => {
   // 'temporalVideoName' is the temporary name for the original video from which the timestamps will be obtained, once this is done this video will be deleted.
@@ -21,6 +21,7 @@ const downloadVideoYtDlp = (url, outputDirectory) => {
         console.log("Video downloaded successfully");
         // Get extension file
         const videoExtension = getExtension(outputDirectory, temporalVideoName);
+        console.log("🚀 ~ ytDlpProcess.on ~ videoExtension:", videoExtension);
 
         resolve({ temporalVideoName, videoExtension });
       } else {
