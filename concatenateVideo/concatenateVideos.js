@@ -2,8 +2,8 @@ import fs from "fs";
 import { exec } from "child_process";
 import path from "path";
 
-import helpGetVideoTitle from "./helpers/helpGetVideoTitle.js";
-import { removeSpecialCharacters, getFiles } from "./utils/functions.js";
+import helpGetVideoTitle from "../helpers/helpGetVideoTitle.js";
+import { removeSpecialCharacters, getFiles } from "../utils/functions.js";
 
 const concatenateVideosMarcosPromises = async (
   inputDirectory,
