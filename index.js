@@ -10,9 +10,9 @@ import helpGetVideoTitle from "./helpers/helpGetVideoTitle.js";
 import { deleteFile } from "./utils/functions.js";
 
 /*
- * url: Address of the video you want to section
+ * url: Address of the video you want to section.
  * directoryPath: Path of the directory where the temporary files will be stored and where the final result will be saved.
- * timestamps: Array corresponding to timestamps in HH:MM:SS format
+ * timestamps: Array corresponding to timestamps in HH:MM:SS format.
  */
 
 const url = "";
