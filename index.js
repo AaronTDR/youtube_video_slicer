@@ -1,4 +1,4 @@
-import concatenateVideos from "./concatenateVideo/concatenateVideos.js";
+import concatenateVideos from "./concatenateVideos/concatenateVideos.js";
 import captureAndCutVideo from "./captureAndCutVideo/captureAndCutVideo.js";
 import downloadVideoYtDlp from "./downloadVideo/downloadVideo.js";
 
