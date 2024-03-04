@@ -1,0 +1,22 @@
+{
+  "folders": [
+	{
+		"path": ".."
+	},
+	{
+		"path": "../../download-image"
+	},
+	{
+		"path": "../../download-video"
+	},
+	{
+		"path": "../../download-youtube-video-test"
+	},
+	{
+		"path": "../../test-recortar"
+	}
+],
+  "settings": {
+    "liveServer.settings.multiRootWorkspaceName": "download-youtube-video-test"
+  }
+}
