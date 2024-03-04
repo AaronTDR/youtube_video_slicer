@@ -11,7 +11,7 @@ const captureAndCutVideo = (
   videoFormat,
   outputDirectory
 ) => {
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
     if (!fs.existsSync(outputDirectory)) {
       console.error("Output folder does not exist");
       return;
@@ -48,7 +48,7 @@ const captureAndCutVideo = (
 
       promises.push(promise);
     });
-
+    await Promise.all(promises);
     resolve({
       promises,
       temporalVideoPath: videoPathWithFormat,

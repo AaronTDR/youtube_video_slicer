@@ -15,9 +15,13 @@ import { deleteFile } from "./utils/functions.js";
  * timestamps: Array corresponding to timestamps in HH:MM:SS format.
  */
 
-const url = "";
-const timestamps = [];
-const directoryPath = "";
+const url = "https://www.youtube.com/watch?v=jhvfYsYQXkc";
+const timestamps = [
+  { start: "00:00:00", end: "00:00:06" },
+  { start: "00:00:20", end: "00:00:25" },
+  { start: "00:00:30", end: "00:00:40" },
+];
+const directoryPath = "C:/users/aaron/downloads/result/";
 
 const ytConcatenateSlices = async (videoUrl, timestamps, directoryPath) => {
   // Validates that in all timestamps the start property is less than the end property
@@ -43,7 +47,7 @@ const ytConcatenateSlices = async (videoUrl, timestamps, directoryPath) => {
       downloadVideoYtDlp(videoUrl, directoryPath),
     ]);
 
-    const { promises, temporalVideoPath } = await captureAndCutVideo(
+    const { /* promises,  */ temporalVideoPath } = await captureAndCutVideo(
       directoryPath,
       timestamps,
       temporalVideoName,
@@ -51,7 +55,7 @@ const ytConcatenateSlices = async (videoUrl, timestamps, directoryPath) => {
       directoryPath
     );
 
-    await Promise.all(promises);
+    // await Promise.all(promises);
 
     // Delete temporary video
     await deleteFile(temporalVideoPath);

@@ -53,7 +53,7 @@ const concatenateVideos = async (inputDirectory, title, videoExtension) => {
   const concatenateList = "concat.txt";
   fs.writeFileSync(concatenateList, concatenateFiles);
 
-  // Run ffmpeg to concatenate the videos
+  // Concatenate the videos
   const commandFFmpeg = `ffmpeg -f concat -safe 0 -i ${concatenateList} -c copy ${outputFileName}`;
 
   const execPromise = new Promise((resolve, reject) => {
