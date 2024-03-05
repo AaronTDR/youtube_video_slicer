@@ -107,8 +107,8 @@ export const deleteFile = (directoryPath) => {
 export const getExtension = async (directoryPath, videoName) => {
   try {
     // Read the contents of the specified directory synchronously.
-    // const files = fs.readdirSync(directoryPath);
     const files = await fsPromises.readdir(directoryPath);
+
     // Find a file in the list that includes the specified videoName.
     const foundFile = files.find((file) => file.includes(videoName));
 
