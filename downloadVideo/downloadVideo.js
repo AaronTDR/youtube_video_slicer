@@ -16,11 +16,14 @@ const downloadVideoYtDlp = (url, outputDirectory) => {
   ytDlpProcess.stdout.pipe(process.stdout); // Redirect progress to console
 
   const ytDlpProcessPromise = new Promise((resolve, reject) => {
-    ytDlpProcess.on("close", (code) => {
+    ytDlpProcess.on("close", async (code) => {
       if (code === 0) {
         console.log("Video downloaded successfully");
         // Get extension file
-        const videoExtension = getExtension(outputDirectory, temporalVideoName);
+        const videoExtension = await getExtension(
+          outputDirectory,
+          temporalVideoName
+        );
 
         resolve({ temporalVideoName, videoExtension });
       } else {

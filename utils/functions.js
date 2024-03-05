@@ -1,4 +1,5 @@
 import fs from "fs";
+import fsPromises from "fs/promises";
 import path from "path";
 
 // Returns the length of the video in HH:MM:SS format
@@ -79,17 +80,15 @@ export const removeSpecialCharacters = (inputString) => {
 };
 
 // Get list of files in folder
-export const getFiles = (directoryPth) =>
-  new Promise((resolve, reject) => {
-    fs.readdir(directoryPth, (err, files) => {
-      if (err) {
-        console.error("Error reading folder:", err.message);
-        reject(err);
-      } else {
-        resolve(files);
-      }
-    });
-  });
+export const getFiles = async (directoryPath) => {
+  try {
+    const files = await fsPromises.readdir(directoryPath);
+    return files;
+  } catch (error) {
+    console.error("Error reading folder:", error.message);
+    throw error;
+  }
+};
 
 export const deleteFile = (directoryPath) => {
   return new Promise((resolve, reject) => {
@@ -105,11 +104,11 @@ export const deleteFile = (directoryPath) => {
 };
 
 // Get extension file
-export const getExtension = (directoryPath, videoName) => {
+export const getExtension = async (directoryPath, videoName) => {
   try {
     // Read the contents of the specified directory synchronously.
-    const files = fs.readdirSync(directoryPath);
-
+    // const files = fs.readdirSync(directoryPath);
+    const files = await fsPromises.readdir(directoryPath);
     // Find a file in the list that includes the specified videoName.
     const foundFile = files.find((file) => file.includes(videoName));
 
@@ -122,7 +121,7 @@ export const getExtension = (directoryPath, videoName) => {
       );
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return ".mp4";
   }
 };
