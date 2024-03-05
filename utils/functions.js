@@ -6,7 +6,7 @@ export const formatTime = (time) => {
   const removeColon = (inputString) => inputString.replace(/:/g, "");
 
   if (typeof time !== "string") {
-    console.log("Invalid time");
+    console.error("Invalid time");
 
     return;
   }
@@ -14,7 +14,7 @@ export const formatTime = (time) => {
 
   const digits = timeWithoutColon.split("");
   if (digits.length === 0 || digits.length > 6 || typeof time !== "string") {
-    console.log("Invalid time");
+    console.error("Invalid time");
     return;
   }
 
@@ -42,7 +42,7 @@ export const formatTime = (time) => {
     return `${digits[0]}${digits[1]}:${digits[2]}${digits[3]}:${digits[4]}${digits[5]}`;
   }
 
-  console.log("Invalid time format");
+  console.error("Invalid time format");
 };
 
 // Convert a timestamp to seconds
