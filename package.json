@@ -12,6 +12,6 @@
   "license": "ISC",
   "dependencies": {
     "child_process": "^1.0.2",
-    "fluent-ffmpeg": "^2.1.2"
+    "cli-progress": "^3.12.0"
   }
 }

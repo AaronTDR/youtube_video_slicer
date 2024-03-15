@@ -4,6 +4,8 @@ import path from "path";
 
 import { removeSpecialCharacters, getFiles } from "../utils/functions.js";
 
+import { SingleBar, Presets } from "cli-progress";
+
 const concatenateVideos = async (inputDirectory, title, videoExtension) => {
   // Replace special characters with underscores
   const cleanedTitle = removeSpecialCharacters(title);
@@ -56,22 +58,31 @@ const concatenateVideos = async (inputDirectory, title, videoExtension) => {
   // Concatenate the videos
   const commandFFmpeg = `ffmpeg -f concat -safe 0 -i ${concatenateList} -c copy ${outputFileName}`;
 
+  // Initialize the progress bar
+  const progressBar = new SingleBar({}, Presets.shades_classic);
+
+  // Start the progress bar
+  progressBar.start(videos.length, 0);
+
+  // Concatenate the videos
   const execPromise = new Promise((resolve, reject) => {
     exec(commandFFmpeg, (error, stdout, stderr) => {
       if (error) {
         console.error("Error when running ffmpeg:", error);
         console.error("FFmpeg stderr:", stderr);
+        progressBar.stop(); // Stop the progress bar in case of an error
         return reject(new Error(`Error when running ffmpeg: ${error.message}`));
       }
 
       // Change file names after concatenation, flag '_ segment _' to '_ concatenated _'
-      videos.forEach((file) => {
+      videos.forEach((file, index) => {
         const filePath = `${inputDirectory}${file}`;
         const newFileName = file.replace(/_segment_/, "_concatenated_");
         fs.renameSync(filePath, `${inputDirectory}${newFileName}`);
-        console.log(`Renowned: ${filePath} -> ${inputDirectory}${newFileName}`);
+        progressBar.update(index + 1); // Update the progress bar
       });
 
+      progressBar.stop(); // Stop the progress bar
       console.log(
         `Videos successfully concatenated. New video created: ${outputFileName}`
       );
