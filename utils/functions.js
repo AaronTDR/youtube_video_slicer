@@ -122,6 +122,5 @@ export const getExtension = async (directoryPath, videoName) => {
     }
   } catch (error) {
     console.error(error);
-    return ".mp4";
   }
 };
