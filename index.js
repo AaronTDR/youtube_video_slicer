@@ -17,30 +17,37 @@ import { deleteFile } from "./utils/functions.js";
  */
 
 const url = "https://www.youtube.com/watch?v=SdvzhCL7vIA";
-const timestamps = [{ start: "00:00:20", end: "00:00:30" }];
-const directoryPath = "C:/users/aaron/downloads/result/noExists";
+const timestamps = [{ start: "00:00:00", end: "00:00:10" }];
+const directoryPath = "C:/users/aaron/downloads/result/";
 
 const ytConcatenateSlices = async (videoUrl, timestamps, directoryPath) => {
-  // Validate if directory path exits
-  const dirExists = await directoryExists(directoryPath);
-  if (!dirExists) {
-    throw new Error(`Directory '${directoryPath}' does not exist.`);
-  }
+  try {
+    // Validate if the directory exists
+    const dirExists = await directoryExists(directoryPath);
+    if (!dirExists) {
+      throw new Error(`Directory '${directoryPath}' does not exist.`);
+    }
 
-  // Validates that in all timestamps the start property is less than the end property
-  const wrongIndices = validateTimestamps(timestamps);
-  if (wrongIndices) {
-    console.error(
-      `start property cannot be greater than end property, error in timestamps position: ${wrongIndices.indices}`
+    // Validates that in all timestamps the start property is less than the end property
+    const wrongIndices = validateTimestamps(timestamps);
+    if (wrongIndices) {
+      console.error(
+        `start property cannot be greater than end property, error in timestamps position: ${wrongIndices.indices}`
+      );
+      return;
+    }
+
+    // Validate if timestamp exceeds video duration
+    const wrongMaxDurationTime = await validateMaxDuration(
+      videoUrl,
+      timestamps
     );
-    return;
-  }
-
-  // Validate if timestamp exceeds video duration
-  const wrongMaxDurationTime = await validateMaxDuration(videoUrl, timestamps);
-  if (wrongMaxDurationTime) {
-    console.error("Video duration exceeded by timestamp");
-    return;
+    if (wrongMaxDurationTime) {
+      console.error("Video duration exceeded by timestamp");
+      return;
+    }
+  } catch (error) {
+    console.error(error);
   }
 
   try {

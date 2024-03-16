@@ -49,6 +49,20 @@ export const formatTime = (time) => {
 // Convert a timestamp to seconds
 export const getSeconds = (timestamp) => {
   const [hours, minutes, seconds] = timestamp.split(":").map(Number);
+
+  // Validate hours, minutes, and seconds
+  if (
+    hours < 0 ||
+    hours > 23 ||
+    minutes < 0 ||
+    minutes > 59 ||
+    seconds < 0 ||
+    seconds > 59
+  ) {
+    throw new Error(
+      "Invalid timestamp format. Hours, minutes, or seconds exceed valid ranges."
+    );
+  }
   return hours * 3600 + minutes * 60 + seconds;
 };
 

@@ -25,7 +25,7 @@ const validateMaxDuration = async (videoUrl, timestamps) => {
     }
     return validated;
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
