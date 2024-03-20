@@ -2,8 +2,7 @@ import concatenateVideos from "./concatenateVideos/concatenateVideos.js";
 import captureAndCutVideo from "./captureAndCutVideo/captureAndCutVideo.js";
 import downloadVideoYtDlp from "./downloadVideo/downloadVideo.js";
 
-import validateTimestamps from "./validations/validateTimestamps.js";
-import validateMaxDuration from "./validations/validateMaxDuration.js";
+import validations from "./validations/validations.js";
 
 import helpGetVideoTitle from "./helpers/helpGetVideoTitle.js";
 
@@ -20,23 +19,10 @@ const timestamps = [];
 const directoryPath = "";
 
 const ytConcatenateSlices = async (videoUrl, timestamps, directoryPath) => {
-  // Validates that in all timestamps the start property is less than the end property
-  const wrongIndices = validateTimestamps(timestamps);
-  if (wrongIndices) {
-    console.error(
-      `start property cannot be greater than end property, error in timestamps position: ${wrongIndices.indices}`
-    );
-    return;
-  }
-
-  // Validate if timestamp exceeds video duration
-  const wrongMaxDurationTime = await validateMaxDuration(videoUrl, timestamps);
-  if (wrongMaxDurationTime) {
-    console.error("Video duration exceeded by timestamp");
-    return;
-  }
-
   try {
+    // Validations
+    await validations(videoUrl, timestamps, directoryPath);
+
     // helpGetVideoTitle and downloadVideoYtDlp are called
     const [title, { temporalVideoName, videoExtension }] = await Promise.all([
       helpGetVideoTitle(videoUrl),
@@ -62,7 +48,7 @@ const ytConcatenateSlices = async (videoUrl, timestamps, directoryPath) => {
 
     console.log("Concatenated video: ", concatenatedVideo);
   } catch (error) {
-    console.error("Something went wrong: ", error);
+    console.error("Error occurred at validations function.");
   }
 };
 
