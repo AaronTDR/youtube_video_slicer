@@ -11,12 +11,16 @@ const helpGetVideoDuration = (url) => {
     });
 
     ytDlpProcess.stderr.on("data", (error) => {
-      console.error(`Error getting duration: ${error}`);
-      reject();
+      const warning =
+        "WARNING: Could not extract video duration at 'helpGetVideoDuration' function.'";
+      console.warn(warning);
+      resolve();
     });
 
     ytDlpProcess.on("close", (code) => {
-      console.log(`yt-dlp --get-duration ended with exit code: ${code}`);
+      console.log(
+        `Command: 'yt-dlp --get-duration' ended with exit code: ${code}`
+      );
     });
   });
 };
