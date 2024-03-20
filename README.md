@@ -120,3 +120,28 @@ Implementation Details
 - Video files in the input directory are validated, and those containing the `segment{segment_number}` tag in their name are filtered.
 - A concatenation list file (`concat.txt`) is generated, specifying the order of the videos to concatenate.
 - The **ffmpeg** command is executed to concatenate the videos.
+
+## Main validations
+
+### validations function
+
+Description
+
+The validations.js function is responsible for centrally managing the main validations in the script, the existence of a directory, the correction of timestamps and the maximum duration of the video.
+
+Parameters
+
+`videoUrl`: (string) URL of the video to validate.
+`timestamps`: (array) Array of objects that represent the timestamps of the video.
+`directoryPath`: (string) Path of the directory where the video is located.
+
+Implementation Details
+
+- Validates the existence of the directory specified by `directoryPath` using the `validateDirectoryExists` function.
+- Check that all timestamps in `timestamps` array have the start property less than the end property using the `validateTimestamps` function.
+- Check that the maximum timestamp duration in `timestamps` array does not exceed the video duration in `videoUrl` using the `validateMaxDuration` function.
+
+Exceptions
+
+- If any of the validations fail, the function will throw an exception that will be caught in a `catch` block.
+- The exception will include a message describing the error and the execution stack if an error has occurred.
