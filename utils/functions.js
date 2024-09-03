@@ -3,52 +3,66 @@ import fsPromises from "fs/promises";
 import path from "path";
 
 // Returns the length of the video in HH:MM:SS format
+/*
+ * This function formats the argument obtained from the yt-dlp --get-duration command, which returns results in the following manner based on the digits corresponding to the video duration:
+  - Video with a duration of 5 seconds = 5
+  - Video with a duration of 10 seconds = 10
+  - Video with a duration of 1 minute = 1:00
+  - Video with a duration of 10 minutes = 10:00
+  - Video with a duration of 1 hour = 1:00:00
+  - Video with a duration of 10 hours = 10:00:00
+*/
 export const formatTime = (time) => {
   const removeColon = (inputString) => inputString.replace(/:/g, "");
 
   if (typeof time !== "string") {
-    console.error("Invalid time");
-
-    return;
+    throw new Error(
+      `Error at formatTime function, invalid argument: argument should be a string, value received as argument 'time': ${time}`
+    );
   }
-  const timeWithoutColon = removeColon(time);
+  const digits = removeColon(time);
 
-  const digits = timeWithoutColon.split("");
-  if (digits.length === 0 || digits.length > 6 || typeof time !== "string") {
-    console.error("Invalid time");
-    return;
-  }
-
-  if (digits.length === 1) {
-    return `00:00:0${digits[0]}`;
+  if (digits.length === 0 || digits.length > 6) {
+    throw new RangeError(
+      `Error at formatTime function, invalid argument: argument should have 1 to 6 digits, value received as argument 'time': ${time}`
+    );
   }
 
-  if (digits.length === 2) {
-    return `00:00:${digits[0]}${digits[1]}`;
+  switch (digits.length) {
+    case 1:
+      return `00:00:0${digits[0]}`;
+    case 2:
+      return `00:00:${digits[0]}${digits[1]}`;
+    case 3:
+      return `00:0${digits[0]}:${digits[1]}${digits[2]}`;
+    case 4:
+      return `00:${digits[0]}${digits[1]}:${digits[2]}${digits[3]}`;
+    case 5:
+      return `0${digits[0]}:${digits[1]}${digits[2]}:${digits[3]}${digits[4]}`;
+    case 6:
+      return `${digits[0]}${digits[1]}:${digits[2]}${digits[3]}:${digits[4]}${digits[5]}`;
+    default:
+      throw new Error(`Error at formatTime function`);
   }
-
-  if (digits.length === 3) {
-    return `00:0${digits[0]}:${digits[1]}${digits[2]}`;
-  }
-
-  if (digits.length === 4) {
-    return `00:${digits[0]}${digits[1]}:${digits[2]}${digits[3]}`;
-  }
-
-  if (digits.length === 5) {
-    return `0${digits[0]}:${digits[1]}${digits[2]}:${digits[3]}${digits[4]}`;
-  }
-
-  if (digits.length === 6) {
-    return `${digits[0]}${digits[1]}:${digits[2]}${digits[3]}:${digits[4]}${digits[5]}`;
-  }
-
-  console.error("Invalid time format");
 };
 
 // Convert a timestamp to seconds
 export const getSeconds = (timestamp) => {
   const [hours, minutes, seconds] = timestamp.split(":").map(Number);
+
+  // Validate hours, minutes, and seconds
+  if (
+    hours < 0 ||
+    hours > 23 ||
+    minutes < 0 ||
+    minutes > 59 ||
+    seconds < 0 ||
+    seconds > 59
+  ) {
+    throw new RangeError(
+      "Invalid timestamp format. Hours, minutes, or seconds exceed valid ranges."
+    );
+  }
   return hours * 3600 + minutes * 60 + seconds;
 };
 
@@ -122,6 +136,5 @@ export const getExtension = async (directoryPath, videoName) => {
     }
   } catch (error) {
     console.error(error);
-    return ".mp4";
   }
 };

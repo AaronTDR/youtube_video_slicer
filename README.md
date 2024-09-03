@@ -98,7 +98,7 @@ Parameters
 
 Implementation Details
 
-- The function utilizes the `fluent-ffmpeg` library to process the video and cut the segments according to the provided timestamps.
+- The function utilizes `ffmpeg` to cut the segments according to the provided timestamps.
 - Unique file names are generated for each video segment based on the current date and time.
 - Events are handled to capture the successful completion of the cutting process or any errors that may occur during the process.
 
@@ -116,7 +116,7 @@ Parameters
 
 Implementation Details
 
-- The function utilizes the **ffmpeg** library to perform video concatenation.
+- The function utilizes **ffmpeg** to perform video concatenation.
 - Video files in the input directory are validated, and those containing the `segment{segment_number}` tag in their name are filtered.
 - A concatenation list file (`concat.txt`) is generated, specifying the order of the videos to concatenate.
 - The **ffmpeg** command is executed to concatenate the videos.
