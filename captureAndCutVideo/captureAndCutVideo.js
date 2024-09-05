@@ -31,16 +31,11 @@ const captureAndCutVideo = async (
       "-t",
       durationClip, // clip duration
       // Lightweight recoding
-      "-c:v",
-      "libx264", // Encoder H.264
       "-preset",
       "veryfast", // Preset to speed up encoding
       "-crf",
       "23", // Quality: 0 is lossless, 23 is good quality, 51 is the lowest
-
-      "-c:a",
-      "aac", // AAC audio encoder
-      outputFilePath.replace(".webm", ".mp4"), // Output file
+      outputFilePath, // Output file
     ]);
 
     const promise = new Promise((resolve, reject) => {
