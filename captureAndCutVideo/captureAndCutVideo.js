@@ -2,31 +2,7 @@ import path from "path";
 import cp from "child_process";
 
 import subtractTimestamps from "./subtractTimestamps.js";
-
-// Helper function to run promises in batches
-const processInBatches = async (tasks, limit) => {
-  try {
-    const results = [];
-    const executing = new Set();
-
-    for (const task of tasks) {
-      const p = task().then((result) => {
-        executing.delete(p);
-        return result;
-      });
-      results.push(p);
-      executing.add(p);
-
-      if (executing.size >= limit) {
-        await Promise.race(executing);
-      }
-    }
-
-    return Promise.all(results);
-  } catch (error) {
-    console.error(error);
-  }
-};
+import { processInBatches } from "../utils/functions.js";
 
 const captureAndCutVideo = async (
   inputVideoDirectory,
@@ -34,7 +10,7 @@ const captureAndCutVideo = async (
   temporalVideoName,
   videoFormat,
   outputDirectory,
-  concurrencyLimit = 5 // Limit of concurrent tasks
+  concurrencyLimit
 ) => {
   const videoPath = path.join(inputVideoDirectory, temporalVideoName);
   const videoPathWithFormat = `${videoPath}${videoFormat}`;

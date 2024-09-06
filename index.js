@@ -18,7 +18,12 @@ const url = "";
 const timestamps = [];
 const directoryPath = "";
 
-const ytConcatenateSlices = async (videoUrl, timestamps, directoryPath) => {
+const ytConcatenateSlices = async (
+  videoUrl,
+  timestamps,
+  directoryPath,
+  concurrencyLimit = 5 // Limit of concurrent tasks
+) => {
   try {
     // Validations
     await validations(videoUrl, timestamps, directoryPath);
@@ -34,7 +39,8 @@ const ytConcatenateSlices = async (videoUrl, timestamps, directoryPath) => {
       timestamps,
       temporalVideoName,
       videoExtension,
-      directoryPath
+      directoryPath,
+      concurrencyLimit
     );
 
     // Delete temporary video
