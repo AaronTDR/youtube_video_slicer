@@ -19,10 +19,6 @@ import { deleteFile } from "./utils/functions.js";
  * ffprobe_exe_path: Path to ffprobe executable
  */
 
-// const url = "";
-// const timestamps = [];
-// const directoryPath = "";
-
 const {
   url,
   timestamps,
@@ -36,7 +32,9 @@ const ytConcatenateSlices = async (
   videoUrl,
   timestamps,
   directoryPath,
-  concurrencyLimit
+  concurrencyLimit,
+  ffmpeg_exe_path,
+  ffprobe_exe_path
 ) => {
   try {
     // Validations
@@ -72,4 +70,11 @@ const ytConcatenateSlices = async (
   }
 };
 
-ytConcatenateSlices(url, timestamps, directoryPath, concurrencyLimit);
+ytConcatenateSlices(
+  url,
+  timestamps,
+  directoryPath,
+  concurrencyLimit,
+  ffmpeg_exe_path,
+  ffprobe_exe_path
+);

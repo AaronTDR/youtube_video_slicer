@@ -10,7 +10,8 @@ const captureAndCutVideo = async (
   temporalVideoName,
   videoFormat,
   outputDirectory,
-  concurrencyLimit
+  concurrencyLimit,
+  ffmpeg_exe_path
 ) => {
   const videoPath = path.join(inputVideoDirectory, temporalVideoName);
   const videoPathWithFormat = `${videoPath}${videoFormat}`;
@@ -28,7 +29,7 @@ const captureAndCutVideo = async (
     // Create task as a function to defer its execution
     const task = () =>
       new Promise((resolve, reject) => {
-        const ffmpegProcess = cp.spawn("ffmpeg", [
+        const ffmpegProcess = cp.spawn(ffmpeg_exe_path, [
           "-i",
           videoPathWithFormat,
           "-ss",
