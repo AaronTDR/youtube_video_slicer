@@ -107,8 +107,6 @@ async function cutAndConcatenateVideo(
       }
     });
 
-    // Procesamos los comandos con límite de concurrencia
-    const concurrencyLimit = 2; // O el valor que prefieras
     await processInBatches(ffmpegCommandsToRun, concurrencyLimit);
 
     try {
@@ -122,13 +120,6 @@ async function cutAndConcatenateVideo(
       console.log("command: ", concatCommand);
       console.log(`File concatenated\n`);
       await execP(concatCommand);
-
-      // Renombrar el video resultante
-      const renamedVideoPath = `${workingFolderPath}${title}${fileExtension}`;
-      fs.renameSync(fullPathOutputVideo, renamedVideoPath); // Renombramos el archivo
-      console.log(`Video renamed to: ${renamedVideoPath}`);
-
-      return renamedVideoPath;
     } catch (error) {
       console.log("File concat error: ", error);
     }
