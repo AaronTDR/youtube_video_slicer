@@ -19,24 +19,6 @@ async function cutAndConcatenateVideo(
 ) {
   const fullPathVideo = `${workingFolderPath}${temporalVideoName}${fileExtension}`;
 
-  // const getSeconds = (timestamp) => {
-  //   const [hours, minutes, seconds] = timestamp.split(":").map(Number);
-
-  //   if (
-  //     hours < 0 ||
-  //     hours > 23 ||
-  //     minutes < 0 ||
-  //     minutes > 59 ||
-  //     seconds < 0 ||
-  //     seconds > 59
-  //   ) {
-  //     throw new RangeError(
-  //       "Invalid timestamp format. Hours, minutes, or seconds exceed valid ranges."
-  //     );
-  //   }
-  //   return hours * 3600 + minutes * 60 + seconds;
-  // };
-
   const timestampsInSeconds = timestamps.map((ts) => {
     return { start: getSeconds(ts.start), end: getSeconds(ts.end) };
   });
