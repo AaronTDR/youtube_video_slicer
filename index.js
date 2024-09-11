@@ -60,8 +60,6 @@ const ytConcatenateSlices = async (
 
     // Delete temporary video
     await deleteFile(workingFolderPath + temporalVideoName + videoExtension);
-
-    console.log("Concatenated video: ", concatenatedVideo);
   } catch (error) {
     console.error("Error occurred at validations function.");
   }
