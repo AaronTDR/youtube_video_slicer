@@ -1,8 +1,7 @@
 import { config } from "./config.js";
 
-import concatenateVideos from "./concatenateVideos/concatenateVideos.js";
-import captureAndCutVideo from "./captureAndCutVideo/captureAndCutVideo.js";
 import downloadVideoYtDlp from "./downloadVideo/downloadVideo.js";
+import cutAndConcatenateVideo from "./cutAndConcatenateVideo/cutAndConcatenateVideo.js";
 
 import validations from "./validations/validations.js";
 
@@ -20,49 +19,47 @@ import { deleteFile } from "./utils/functions.js";
  */
 
 const {
-  url,
-  timestamps,
-  directoryPath,
-  concurrencyLimit,
   ffmpeg_exe_path,
   ffprobe_exe_path,
+  workingFolderPath,
+  segmentsFolderPath,
+  url,
+  timestamps,
+  concurrencyLimit,
 } = config;
 
 const ytConcatenateSlices = async (
-  videoUrl,
-  timestamps,
-  directoryPath,
-  concurrencyLimit,
   ffmpeg_exe_path,
-  ffprobe_exe_path
+  ffprobe_exe_path,
+  workingFolderPath,
+  segmentsFolderPath,
+  url,
+  timestamps
 ) => {
   try {
     // Validations
-    await validations(videoUrl, timestamps, directoryPath);
+    // await validations(url, timestamps, workingFolderPath);
 
     // helpGetVideoTitle and downloadVideoYtDlp are called
     const [title, { temporalVideoName, videoExtension }] = await Promise.all([
-      helpGetVideoTitle(videoUrl),
-      downloadVideoYtDlp(videoUrl, directoryPath),
+      helpGetVideoTitle(url),
+      downloadVideoYtDlp(url, workingFolderPath),
     ]);
 
-    const { temporalVideoPath } = await captureAndCutVideo(
-      directoryPath,
+    await cutAndConcatenateVideo(
+      ffmpeg_exe_path,
+      ffprobe_exe_path,
+      title,
+      workingFolderPath,
+      segmentsFolderPath,
       timestamps,
       temporalVideoName,
       videoExtension,
-      directoryPath,
       concurrencyLimit
     );
 
     // Delete temporary video
-    await deleteFile(temporalVideoPath);
-
-    const concatenatedVideo = await concatenateVideos(
-      directoryPath,
-      title,
-      videoExtension
-    );
+    await deleteFile(workingFolderPath + temporalVideoName + videoExtension);
 
     console.log("Concatenated video: ", concatenatedVideo);
   } catch (error) {
@@ -71,10 +68,11 @@ const ytConcatenateSlices = async (
 };
 
 ytConcatenateSlices(
+  ffmpeg_exe_path,
+  ffprobe_exe_path,
+  workingFolderPath,
+  segmentsFolderPath,
   url,
   timestamps,
-  directoryPath,
-  concurrencyLimit,
-  ffmpeg_exe_path,
-  ffprobe_exe_path
+  concurrencyLimit
 );

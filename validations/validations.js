@@ -2,10 +2,10 @@ import validateDirectoryExists from "./validateDirectoryExists.js";
 import validateTimestamps from "./validateTimestamps.js";
 import validateMaxDuration from "./validateMaxDuration.js";
 
-const validations = async (videoUrl, timestamps, directoryPath) => {
+const validations = async (videoUrl, timestamps, workingFolderPath) => {
   try {
     // Validate if the directory exists
-    await validateDirectoryExists(directoryPath);
+    await validateDirectoryExists(workingFolderPath);
 
     // Validates that in all timestamps the start property is less than the end property
     const wrongIndices = validateTimestamps(timestamps);

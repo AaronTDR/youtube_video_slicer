@@ -1,12 +1,12 @@
 import fsPromises from "fs/promises";
 
-const validateDirectoryExists = async (directoryPath) => {
+const validateDirectoryExists = async (workingFolderPath) => {
   try {
-    await fsPromises.readdir(directoryPath);
+    await fsPromises.readdir(workingFolderPath);
   } catch (error) {
     if (error.code === "ENOENT") {
       throw new Error(
-        `Error at validateDirectoryExists function, directory: '${directoryPath}' does not exist.`
+        `Error at validateDirectoryExists function, directory: '${workingFolderPath}' does not exist.`
       );
     } else {
       throw new Error("Error at validateDirectoryExists function");
