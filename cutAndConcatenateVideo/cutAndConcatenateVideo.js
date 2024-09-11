@@ -46,8 +46,6 @@ async function cutAndConcatenateVideo(
       `${ffprobe_exe_path} -loglevel error -select_streams v:0 -show_entries packet=pts_time,flags -of csv=print_section=0 ` +
       `${fullPathVideo}`;
 
-    console.log("command: ", command);
-
     const result = await execP(command, { maxBuffer: 1048576000 });
     const keyframes = [];
 

@@ -105,10 +105,6 @@ export const getFiles = async (directoryPath) => {
 };
 
 export const deleteFile = (directoryPath) => {
-  console.log(
-    "********************************************************🚀 ~ deleteFile ~ directoryPath:",
-    directoryPath
-  );
   return new Promise((resolve, reject) => {
     fs.unlink(directoryPath, (err) => {
       if (err) {
