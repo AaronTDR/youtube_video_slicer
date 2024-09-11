@@ -38,7 +38,7 @@ const ytConcatenateSlices = async (
 ) => {
   try {
     // Validations
-    // await validations(url, timestamps, workingFolderPath);
+    await validations(url, timestamps, workingFolderPath);
 
     // helpGetVideoTitle and downloadVideoYtDlp are called
     const [title, { temporalVideoName, videoExtension }] = await Promise.all([

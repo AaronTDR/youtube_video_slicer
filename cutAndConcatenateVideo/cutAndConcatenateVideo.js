@@ -15,7 +15,8 @@ async function cutAndConcatenateVideo(
   segmentsFolderPath,
   timestamps,
   temporalVideoName,
-  fileExtension
+  fileExtension,
+  concurrencyLimit
 ) {
   const fullPathVideo = `${workingFolderPath}${temporalVideoName}${fileExtension}`;
 
