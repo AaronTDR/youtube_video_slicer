@@ -87,8 +87,8 @@ const ytConcatenateSlices = async (
         + `-c:v libx264 -crf 17 -preset fast `
         + `${compatibleShortFullPathName}`
       console.log('\nCommand: ', convertCommand, '\n');
-      console.log('Video converted to compatible format for Youtube Shorts: ', compatibleShortFullPathName, '\n');
       await execP(convertCommand);
+      console.log('Video converted to compatible format for Youtube Shorts: ', compatibleShortFullPathName, '\n');
 
       if (shortsConfig && shortsConfig.generateThumbnail === true) {
         // Generate Short video thumbnail from image to be able to concatenate that to the `compatibleShortName` video
@@ -105,8 +105,8 @@ const ytConcatenateSlices = async (
           + `-f lavfi -i anullsrc=channel_layout=stereo:sample_rate=48000 -filter_complex "[0]scale=2560:4550:force_original_aspect_ratio=increase,crop=2560:4550,setsar=1,format=yuv420p[v]" `
           + `-map "[v]" -map 1 -c:v libx264 -c:a aac -shortest "${imageVideoShortFullPathname}"`
         console.log('\nCommand: ', imageCommand, '\n');
-        console.log('Create video from image: ', imageVideoShortFullPathname, '\n');
         await execP(imageCommand);
+        console.log('Created video from image: ', imageVideoShortFullPathname, '\n');
       }
     }
     console.log('-----DONE-----');
