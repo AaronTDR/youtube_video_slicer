@@ -23,6 +23,8 @@ async function cutAndConcatenateVideo(
     return { start: getSeconds(ts.start), end: getSeconds(ts.end) };
   });
 
+  const sortableDate = new Date().toISOString().replaceAll(':', '_').replaceAll('.', '_');
+
   try {
     const command =
       `${ffprobe_exe_path} -loglevel error -select_streams v:0 -show_entries packet=pts_time,flags -of csv=print_section=0 ` +
@@ -46,7 +48,7 @@ async function cutAndConcatenateVideo(
       );
 
       const dotTo_ = (float) => float.toString().replace(/\./g, "_");
-      const prefix = "segment_000000";
+      const prefix = `${sortableDate}_segment_000000`;
 
       if (inBetweenKeyFrames.length <= 1) {
         const videoSegmentName = `${segmentsFolderPath}${prefix}${index + 1}${
@@ -93,7 +95,7 @@ async function cutAndConcatenateVideo(
       const fileConcatFullPath = workingFolderPath + "concatfile.txt";
       fs.writeFileSync(fileConcatFullPath, file);
 
-      const fileNameOutput = "final_result_" + temporalVideoName;
+      const fileNameOutput = sortableDate + "_final_result_" + temporalVideoName;
       const fullPathOutputVideo = `${workingFolderPath}${fileNameOutput}${fileExtension}`;
       const fileNameOutputWithoutExtension = fileNameOutput;
       const concatCommand = `${ffmpeg_exe_path} -f concat -safe 0 -i ${fileConcatFullPath} -c copy ${fullPathOutputVideo}`;
