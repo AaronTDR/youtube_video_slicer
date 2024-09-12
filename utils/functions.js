@@ -157,11 +157,11 @@ export const processInBatches = async (tasks, limit) => {
       results.push(p);
       executing.add(p);
 
+      console.log('Processing batch of segments. Number: ', batchNumber)
       if (executing.size >= limit) {
-        console.log('Processing batch of segments. Number: ', batchNumber)
         await Promise.race(executing);
-        batchNumber++;
       }
+      batchNumber++;
     }
     console.log()
 

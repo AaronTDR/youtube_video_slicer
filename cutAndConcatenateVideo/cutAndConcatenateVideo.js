@@ -43,6 +43,7 @@ async function cutAndConcatenateVideo(
 
     let file = ``;
     const ffmpegCommandsToRun = [];
+    let optimizationsFound = 0;
 
     timestampsInSeconds.forEach((ts, index) => {
       const inBetweenKeyFrames = keyframes.filter(
@@ -63,6 +64,7 @@ async function cutAndConcatenateVideo(
           )
         );
       } else {
+        optimizationsFound++;
         const [firstKeyframe] = inBetweenKeyFrames;
         const lastKeyframe = inBetweenKeyFrames[inBetweenKeyFrames.length - 1];
         const videoSegmentNameBeginning = `${segmentsFolderPath}${prefix}${
@@ -91,6 +93,7 @@ async function cutAndConcatenateVideo(
       }
     });
 
+    console.log('Optimizations found: ', optimizationsFound)
     await processInBatches(ffmpegCommandsToRun, concurrencyLimit);
 
     try {
