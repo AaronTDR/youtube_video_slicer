@@ -93,13 +93,15 @@ async function cutAndConcatenateVideo(
       const fileConcatFullPath = workingFolderPath + "concatfile.txt";
       fs.writeFileSync(fileConcatFullPath, file);
 
-      const fileNameOutput = "final_result" + temporalVideoName;
+      const fileNameOutput = "final_result_" + temporalVideoName;
       const fullPathOutputVideo = `${workingFolderPath}${fileNameOutput}${fileExtension}`;
-
+      const fileNameOutputWithoutExtension = fileNameOutput;
       const concatCommand = `${ffmpeg_exe_path} -f concat -safe 0 -i ${fileConcatFullPath} -c copy ${fullPathOutputVideo}`;
       console.log("command: ", concatCommand);
       console.log(`File concatenated\n`);
       await execP(concatCommand);
+      console.log('Concatenated file name: ', fullPathOutputVideo);
+      return { fileNameOutputWithoutExtension, fileExtension };
     } catch (error) {
       console.log("File concat error: ", error);
     }

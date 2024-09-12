@@ -9,6 +9,10 @@ import helpGetVideoTitle from "./helpers/helpGetVideoTitle.js";
 
 import { deleteFile } from "./utils/functions.js";
 
+import { promisify } from "util";
+import { exec } from "child_process";
+const execP = promisify(exec);
+
 /*
  * url: Address of the video you want to section.
  * directoryPath: Path of the directory where the temporary files will be stored and where the final result will be saved.
@@ -26,6 +30,7 @@ const {
   url,
   timestamps,
   concurrencyLimit,
+  isYoutubeShort,
 } = config;
 
 const ytConcatenateSlices = async (
@@ -46,7 +51,7 @@ const ytConcatenateSlices = async (
       downloadVideoYtDlp(url, workingFolderPath),
     ]);
 
-    await cutAndConcatenateVideo(
+    const { fileNameOutputWithoutExtension, fileExtension } = await cutAndConcatenateVideo(
       ffmpeg_exe_path,
       ffprobe_exe_path,
       title,
@@ -60,8 +65,22 @@ const ytConcatenateSlices = async (
 
     // Delete temporary video
     await deleteFile(workingFolderPath + temporalVideoName + videoExtension);
+
+    if (isYoutubeShort === true) {
+      const blurredShortName = `${fileNameOutputWithoutExtension}_blurred_top_bottom${fileExtension}`;
+      const blurredShortFullPathname = `${workingFolderPath}${blurredShortName}`;
+
+      const command = `${ffmpeg_exe_path} -i "${workingFolderPath}${fileNameOutputWithoutExtension}${fileExtension}" `
+        + `-vf "split[original][copy];[copy]scale=-1:ih*(16/9)*(16/9),crop=w=ih*9/16,gblur=sigma=20[blurred];[blurred][original]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2" `
+        + `"${blurredShortFullPathname}"`;
+      console.log('\nCommand: ', command, '\n');
+      await execP(command);
+      console.log('Blurred video at the top and at the bottom for Shorts generated: ', blurredShortFullPathname, '\n');
+
+    }
+    console.log('Finished video');
   } catch (error) {
-    console.error("Error occurred at validations function.");
+    console.error("Error occurred at validations function.", error);
   }
 };
 
