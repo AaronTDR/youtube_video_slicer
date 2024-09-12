@@ -30,6 +30,8 @@ async function cutAndConcatenateVideo(
       `${ffprobe_exe_path} -loglevel error -select_streams v:0 -show_entries packet=pts_time,flags -of csv=print_section=0 ` +
       `${fullPathVideo}`;
 
+    console.log('Command Keyframes: ', command);
+
     const result = await execP(command, { maxBuffer: 1048576000 });
     const keyframes = [];
 
@@ -44,7 +46,7 @@ async function cutAndConcatenateVideo(
 
     timestampsInSeconds.forEach((ts, index) => {
       const inBetweenKeyFrames = keyframes.filter(
-        (kf) => ts.start <= kf && ts.end >= kf
+        (kf) => ts.start < kf && ts.end > kf
       );
 
       const dotTo_ = (float) => float.toString().replace(/\./g, "_");
