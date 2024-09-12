@@ -31,6 +31,8 @@ const {
   timestamps,
   concurrencyLimit,
   isYoutubeShort,
+  shortThumbnailPath,
+  shortsConfig,
 } = config;
 
 const ytConcatenateSlices = async (
@@ -67,7 +69,8 @@ const ytConcatenateSlices = async (
     await deleteFile(workingFolderPath + temporalVideoName + videoExtension);
 
     if (isYoutubeShort === true) {
-      const blurredShortName = `${fileNameOutputWithoutExtension}_blurred_top_bottom${fileExtension}`;
+      // Blur top and bottom of video and make it vertical 
+      const blurredShortName = `${fileNameOutputWithoutExtension}_BLURRED_top_bottom${fileExtension}`;
       const blurredShortFullPathname = `${workingFolderPath}${blurredShortName}`;
 
       const command = `${ffmpeg_exe_path} -i "${workingFolderPath}${fileNameOutputWithoutExtension}${fileExtension}" `
@@ -77,8 +80,36 @@ const ytConcatenateSlices = async (
       await execP(command);
       console.log('Blurred video at the top and at the bottom for Shorts generated: ', blurredShortFullPathname, '\n');
 
+      // Converted video to a compatible Short format for the Android app
+      const compatibleShortName = `${fileNameOutputWithoutExtension}_COMPATIBLE_to_youtube_format.mp4`;
+      const compatibleShortFullPathName = `${workingFolderPath}${compatibleShortName}`;
+      const convertCommand = `${ffmpeg_exe_path} -i "${blurredShortFullPathname}" `
+        + `-c:v libx264 -crf 17 -preset fast `
+        + `${compatibleShortFullPathName}`
+      console.log('\nCommand: ', convertCommand, '\n');
+      console.log('Video converted to compatible format for Youtube Shorts: ', compatibleShortFullPathName, '\n');
+      await execP(convertCommand);
+
+      if (shortsConfig && shortsConfig.generateThumbnail === true) {
+        // Generate Short video thumbnail from image to be able to concatenate that to the `compatibleShortName` video
+        if (typeof shortsConfig.shortThumbnailPath !== 'string' && shortsConfig.shortThumbnailPath.length === 0) {
+          const err = '\n You need to specify a Thumbnail image for the Short! \n';
+          console.error(err);
+          throw err;
+        }
+
+        const imageVideoShortName = `${fileNameOutputWithoutExtension}_thumbnail_video.mp4`;
+        const imageVideoShortFullPathname = `${workingFolderPath}${imageVideoShortName}`;
+
+        const imageCommand = `${ffmpeg_exe_path} -loop 1 -framerate 60 -t 5 -i "${shortsConfig.shortThumbnailPath}" `
+          + `-f lavfi -i anullsrc=channel_layout=stereo:sample_rate=48000 -filter_complex "[0]scale=2560:4550:force_original_aspect_ratio=increase,crop=2560:4550,setsar=1,format=yuv420p[v]" `
+          + `-map "[v]" -map 1 -c:v libx264 -c:a aac -shortest "${imageVideoShortFullPathname}"`
+        console.log('\nCommand: ', imageCommand, '\n');
+        console.log('Create video from image: ', imageVideoShortFullPathname, '\n');
+        await execP(imageCommand);
+      }
     }
-    console.log('Finished video');
+    console.log('-----DONE-----');
   } catch (error) {
     console.error("Error occurred at validations function.", error);
   }
