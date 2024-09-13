@@ -23,10 +23,14 @@ async function cutAndConcatenateVideo(
     return { start: getSeconds(ts.start), end: getSeconds(ts.end) };
   });
 
+  const sortableDate = new Date().toISOString().replaceAll(':', '_').replaceAll('.', '_');
+
   try {
     const command =
       `${ffprobe_exe_path} -loglevel error -select_streams v:0 -show_entries packet=pts_time,flags -of csv=print_section=0 ` +
       `${fullPathVideo}`;
+
+    console.log('Command Keyframes: ', command);
 
     const result = await execP(command, { maxBuffer: 1048576000 });
     const keyframes = [];
@@ -39,14 +43,15 @@ async function cutAndConcatenateVideo(
 
     let file = ``;
     const ffmpegCommandsToRun = [];
+    let optimizationsFound = 0;
 
     timestampsInSeconds.forEach((ts, index) => {
       const inBetweenKeyFrames = keyframes.filter(
-        (kf) => ts.start <= kf && ts.end >= kf
+        (kf) => ts.start < kf && ts.end > kf
       );
 
       const dotTo_ = (float) => float.toString().replace(/\./g, "_");
-      const prefix = "segment_000000";
+      const prefix = `${sortableDate}_segment_000000`;
 
       if (inBetweenKeyFrames.length <= 1) {
         const videoSegmentName = `${segmentsFolderPath}${prefix}${index + 1}${
@@ -59,6 +64,7 @@ async function cutAndConcatenateVideo(
           )
         );
       } else {
+        optimizationsFound++;
         const [firstKeyframe] = inBetweenKeyFrames;
         const lastKeyframe = inBetweenKeyFrames[inBetweenKeyFrames.length - 1];
         const videoSegmentNameBeginning = `${segmentsFolderPath}${prefix}${
@@ -87,19 +93,22 @@ async function cutAndConcatenateVideo(
       }
     });
 
+    console.log('Optimizations found: ', optimizationsFound)
     await processInBatches(ffmpegCommandsToRun, concurrencyLimit);
 
     try {
       const fileConcatFullPath = workingFolderPath + "concatfile.txt";
       fs.writeFileSync(fileConcatFullPath, file);
 
-      const fileNameOutput = "final_result" + temporalVideoName;
+      const fileNameOutput = sortableDate + "_final_result_" + temporalVideoName;
       const fullPathOutputVideo = `${workingFolderPath}${fileNameOutput}${fileExtension}`;
-
+      const fileNameOutputWithoutExtension = fileNameOutput;
       const concatCommand = `${ffmpeg_exe_path} -f concat -safe 0 -i ${fileConcatFullPath} -c copy ${fullPathOutputVideo}`;
       console.log("command: ", concatCommand);
       console.log(`File concatenated\n`);
       await execP(concatCommand);
+      console.log('Concatenated file name: ', fullPathOutputVideo);
+      return { fileNameOutputWithoutExtension, fileExtension };
     } catch (error) {
       console.log("File concat error: ", error);
     }

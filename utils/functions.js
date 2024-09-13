@@ -142,8 +142,12 @@ export const getExtension = async (directoryPath, videoName) => {
 // Run promises in batches
 export const processInBatches = async (tasks, limit) => {
   try {
+    let batchNumber = 1;
     const results = [];
     const executing = new Set();
+
+    console.log('\nNumber of batches to be processed: ', tasks.length)
+
 
     for (const task of tasks) {
       const p = task().then((result) => {
@@ -153,10 +157,13 @@ export const processInBatches = async (tasks, limit) => {
       results.push(p);
       executing.add(p);
 
+      console.log('Processing batch of segments. Number: ', batchNumber)
       if (executing.size >= limit) {
         await Promise.race(executing);
       }
+      batchNumber++;
     }
+    console.log()
 
     return Promise.all(results);
   } catch (error) {
