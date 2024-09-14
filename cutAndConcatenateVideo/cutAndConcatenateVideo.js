@@ -19,7 +19,7 @@ async function cutAndConcatenateVideo(
 ) {
   const fullPathVideo = `${workingFolderPath}${temporalVideoName}${fileExtension}`;
 
-  // Convertimos los timestamps a segundos con milisegundos
+  // Convert timestamps to seconds with milliseconds
   const timestampsInSeconds = timestamps.map((ts) => {
     return {
       start: getSeconds(ts.start),

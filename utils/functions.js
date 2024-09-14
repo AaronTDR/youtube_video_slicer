@@ -19,12 +19,12 @@ export const formatTime = (time) => {
     );
   }
 
-  // Dividimos el tiempo por ":"
+  // Divide the time by ":"
   const parts = time.split(":").map(Number);
 
-  // Validamos si el formato es de horas, minutos y segundos
+  // Validates if the format is hours, minutes and seconds
   if (parts.length === 2) {
-    // Caso de formato "MM:SS" => Convertimos a "00:MM:SS.000"
+    // Format case "MM:SS" => We convert to "00:MM:SS.000"
     const [minutes, seconds] = parts;
     if (minutes > 59 || seconds > 59) {
       throw new RangeError(
@@ -36,7 +36,7 @@ export const formatTime = (time) => {
       "0"
     )}.000`;
   } else if (parts.length === 3) {
-    // Caso de formato "HH:MM:SS" => Convertimos a "HH:MM:SS.000"
+    // Format case "HH:MM:SS" => We convert to "HH:MM:SS.000"
     const [hours, minutes, seconds] = parts;
     if (hours > 23 || minutes > 59 || seconds > 59) {
       throw new RangeError(
