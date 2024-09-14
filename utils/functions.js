@@ -13,42 +13,58 @@ import path from "path";
   - Video with a duration of 10 hours = 10:00:00
 */
 export const formatTime = (time) => {
-  const removeColon = (inputString) => inputString.replace(/:/g, "");
-
   if (typeof time !== "string") {
     throw new Error(
       `Error at formatTime function, invalid argument: argument should be a string, value received as argument 'time': ${time}`
     );
   }
-  const digits = removeColon(time);
 
-  if (digits.length === 0 || digits.length > 6) {
+  // Dividimos el tiempo por ":"
+  const parts = time.split(":").map(Number);
+
+  // Validamos si el formato es de horas, minutos y segundos
+  if (parts.length === 2) {
+    // Caso de formato "MM:SS" => Convertimos a "00:MM:SS.000"
+    const [minutes, seconds] = parts;
+    if (minutes > 59 || seconds > 59) {
+      throw new RangeError(
+        `Invalid time format. Minutes or seconds exceed valid ranges in argument: ${time}`
+      );
+    }
+    return `00:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
+      2,
+      "0"
+    )}.000`;
+  } else if (parts.length === 3) {
+    // Caso de formato "HH:MM:SS" => Convertimos a "HH:MM:SS.000"
+    const [hours, minutes, seconds] = parts;
+    if (hours > 23 || minutes > 59 || seconds > 59) {
+      throw new RangeError(
+        `Invalid time format. Hours, minutes or seconds exceed valid ranges in argument: ${time}`
+      );
+    }
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
+      2,
+      "0"
+    )}:${String(seconds).padStart(2, "0")}.000`;
+  } else {
     throw new RangeError(
-      `Error at formatTime function, invalid argument: argument should have 1 to 6 digits, value received as argument 'time': ${time}`
+      `Invalid time format. Argument should be in 'MM:SS' or 'HH:MM:SS' format, received: ${time}`
     );
-  }
-
-  switch (digits.length) {
-    case 1:
-      return `00:00:0${digits[0]}`;
-    case 2:
-      return `00:00:${digits[0]}${digits[1]}`;
-    case 3:
-      return `00:0${digits[0]}:${digits[1]}${digits[2]}`;
-    case 4:
-      return `00:${digits[0]}${digits[1]}:${digits[2]}${digits[3]}`;
-    case 5:
-      return `0${digits[0]}:${digits[1]}${digits[2]}:${digits[3]}${digits[4]}`;
-    case 6:
-      return `${digits[0]}${digits[1]}:${digits[2]}${digits[3]}:${digits[4]}${digits[5]}`;
-    default:
-      throw new Error(`Error at formatTime function`);
   }
 };
 
 // Convert a timestamp to seconds
 export const getSeconds = (timestamp) => {
-  const [hours, minutes, seconds] = timestamp.split(":").map(Number);
+  const [hours, minutes, seconds, milliseconds] = timestamp
+    .split(":")
+    .map((part, idx) => {
+      if (idx === 2 && part.includes(".")) {
+        const [sec, ms] = part.split(".");
+        return [Number(sec), Number(ms)];
+      }
+      return Number(part);
+    });
 
   // Validate hours, minutes, and seconds
   if (
@@ -56,14 +72,17 @@ export const getSeconds = (timestamp) => {
     hours > 23 ||
     minutes < 0 ||
     minutes > 59 ||
-    seconds < 0 ||
-    seconds > 59
+    seconds[0] < 0 ||
+    seconds[0] > 59 ||
+    (milliseconds !== undefined && (milliseconds < 0 || milliseconds > 999))
   ) {
     throw new RangeError(
-      "Invalid timestamp format. Hours, minutes, or seconds exceed valid ranges."
+      "Invalid timestamp format. Hours, minutes, seconds, or milliseconds exceed valid ranges."
     );
   }
-  return hours * 3600 + minutes * 60 + seconds;
+
+  const totalSeconds = hours * 3600 + minutes * 60 + seconds[0];
+  return milliseconds ? totalSeconds + milliseconds / 1000 : totalSeconds;
 };
 
 // Convert seconds to timestamp
@@ -146,8 +165,7 @@ export const processInBatches = async (tasks, limit) => {
     const results = [];
     const executing = new Set();
 
-    console.log('\nNumber of batches to be processed: ', tasks.length)
-
+    console.log("\nNumber of batches to be processed: ", tasks.length);
 
     for (const task of tasks) {
       const p = task().then((result) => {
@@ -157,13 +175,13 @@ export const processInBatches = async (tasks, limit) => {
       results.push(p);
       executing.add(p);
 
-      console.log('Processing batch of segments. Number: ', batchNumber)
+      console.log("Processing batch of segments. Number: ", batchNumber);
       if (executing.size >= limit) {
         await Promise.race(executing);
       }
       batchNumber++;
     }
-    console.log()
+    console.log();
 
     return Promise.all(results);
   } catch (error) {

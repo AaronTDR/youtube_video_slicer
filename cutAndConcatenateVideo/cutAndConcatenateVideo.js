@@ -19,18 +19,25 @@ async function cutAndConcatenateVideo(
 ) {
   const fullPathVideo = `${workingFolderPath}${temporalVideoName}${fileExtension}`;
 
+  // Convertimos los timestamps a segundos con milisegundos
   const timestampsInSeconds = timestamps.map((ts) => {
-    return { start: getSeconds(ts.start), end: getSeconds(ts.end) };
+    return {
+      start: getSeconds(ts.start),
+      end: getSeconds(ts.end),
+    };
   });
 
-  const sortableDate = new Date().toISOString().replaceAll(':', '_').replaceAll('.', '_');
+  const sortableDate = new Date()
+    .toISOString()
+    .replaceAll(":", "_")
+    .replaceAll(".", "_");
 
   try {
     const command =
       `${ffprobe_exe_path} -loglevel error -select_streams v:0 -show_entries packet=pts_time,flags -of csv=print_section=0 ` +
       `${fullPathVideo}`;
 
-    console.log('Command Keyframes: ', command);
+    console.log("Command Keyframes: ", command);
 
     const result = await execP(command, { maxBuffer: 1048576000 });
     const keyframes = [];
@@ -60,7 +67,9 @@ async function cutAndConcatenateVideo(
         file += `file '${videoSegmentName}'\n`;
         ffmpegCommandsToRun.push(() =>
           execP(
-            `${ffmpeg_exe_path} -i ${fullPathVideo} -ss ${ts.start} -to ${ts.end} ${videoSegmentName}`
+            `${ffmpeg_exe_path} -i ${fullPathVideo} -ss ${formatFFmpegTime(
+              ts.start
+            )} -to ${formatFFmpegTime(ts.end)} ${videoSegmentName}`
           )
         );
       } else {
@@ -73,7 +82,11 @@ async function cutAndConcatenateVideo(
 
         ffmpegCommandsToRun.push(() =>
           execP(
-            `${ffmpeg_exe_path} -i ${fullPathVideo} -ss ${ts.start} -to ${firstKeyframe} ${videoSegmentNameBeginning}`
+            `${ffmpeg_exe_path} -i ${fullPathVideo} -ss ${formatFFmpegTime(
+              ts.start
+            )} -to ${formatFFmpegTime(
+              firstKeyframe
+            )} ${videoSegmentNameBeginning}`
           )
         );
         file += `file '${videoSegmentNameBeginning}'\n`;
@@ -83,31 +96,34 @@ async function cutAndConcatenateVideo(
 
         const videoSegmentNameEnd = `${segmentsFolderPath}${prefix}${
           index + 1
-        }${dotTo_(lastKeyframe)}-${ts.end}${fileExtension}`;
+        }${dotTo_(lastKeyframe)}-${formatFFmpegTime(ts.end)}${fileExtension}`;
         ffmpegCommandsToRun.push(() =>
           execP(
-            `${ffmpeg_exe_path} -i ${fullPathVideo} -ss ${lastKeyframe} -to ${ts.end} ${videoSegmentNameEnd}`
+            `${ffmpeg_exe_path} -i ${fullPathVideo} -ss ${formatFFmpegTime(
+              lastKeyframe
+            )} -to ${formatFFmpegTime(ts.end)} ${videoSegmentNameEnd}`
           )
         );
         file += `file '${videoSegmentNameEnd}'\n`;
       }
     });
 
-    console.log('Optimizations found: ', optimizationsFound)
+    console.log("Optimizations found: ", optimizationsFound);
     await processInBatches(ffmpegCommandsToRun, concurrencyLimit);
 
     try {
       const fileConcatFullPath = workingFolderPath + "concatfile.txt";
       fs.writeFileSync(fileConcatFullPath, file);
 
-      const fileNameOutput = sortableDate + "_final_result_" + temporalVideoName;
+      const fileNameOutput =
+        sortableDate + "_final_result_" + temporalVideoName;
       const fullPathOutputVideo = `${workingFolderPath}${fileNameOutput}${fileExtension}`;
       const fileNameOutputWithoutExtension = fileNameOutput;
       const concatCommand = `${ffmpeg_exe_path} -f concat -safe 0 -i ${fileConcatFullPath} -c copy ${fullPathOutputVideo}`;
       console.log("command: ", concatCommand);
       console.log(`File concatenated\n`);
       await execP(concatCommand);
-      console.log('Concatenated file name: ', fullPathOutputVideo);
+      console.log("Concatenated file name: ", fullPathOutputVideo);
       return { fileNameOutputWithoutExtension, fileExtension };
     } catch (error) {
       console.log("File concat error: ", error);
@@ -118,5 +134,11 @@ async function cutAndConcatenateVideo(
   console.log("------------------");
   console.log("\nDone");
 }
+
+// Helper function to format time for FFmpeg
+const formatFFmpegTime = (seconds) => {
+  const date = new Date(seconds * 1000).toISOString().substr(11, 12);
+  return date.includes(".") ? date : date + ".000";
+};
 
 export default cutAndConcatenateVideo;
