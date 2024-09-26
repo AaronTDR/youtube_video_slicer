@@ -56,33 +56,41 @@ export const formatTime = (time) => {
 
 // Convert a timestamp to seconds
 export const getSeconds = (timestamp) => {
-  const [hours, minutes, seconds, milliseconds] = timestamp
-    .split(":")
-    .map((part, idx) => {
-      if (idx === 2 && part.includes(".")) {
-        const [sec, ms] = part.split(".");
-        return [Number(sec), Number(ms)];
-      }
-      return Number(part);
-    });
+  let hours,
+    minutes,
+    seconds,
+    milliseconds = 0;
 
-  // Validate hours, minutes, and seconds
+  const timeParts = timestamp.split(":").map((part, idx) => {
+    if (idx === 2 && part.includes(".")) {
+      const [sec, ms] = part.split(".");
+      seconds = Number(sec);
+      milliseconds = Number(ms);
+    } else {
+      return Number(part);
+    }
+  });
+
+  // Assign hours and minutes to the first two elements of the array  [hours, minutes] = timeParts;
+
+  // Validate hours, minutes, seconds, and milliseconds
   if (
     hours < 0 ||
     hours > 23 ||
     minutes < 0 ||
     minutes > 59 ||
-    seconds[0] < 0 ||
-    seconds[0] > 59 ||
-    (milliseconds !== undefined && (milliseconds < 0 || milliseconds > 999))
+    seconds < 0 ||
+    seconds > 59 ||
+    milliseconds < 0 ||
+    milliseconds > 999
   ) {
     throw new RangeError(
       "Invalid timestamp format. Hours, minutes, seconds, or milliseconds exceed valid ranges."
     );
   }
 
-  const totalSeconds = hours * 3600 + minutes * 60 + seconds[0];
-  return milliseconds ? totalSeconds + milliseconds / 1000 : totalSeconds;
+  // Calculate the total in seconds including milliseconds
+  return hours * 3600 + minutes * 60 + seconds + milliseconds / 1000;
 };
 
 // Convert seconds to timestamp

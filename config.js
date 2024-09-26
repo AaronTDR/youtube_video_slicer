@@ -5,9 +5,9 @@ export const config = {
   segmentsFolderPath: "C:/users/aaron/downloads/result/segments/",
   url: "https://www.youtube.com/watch?v=aIxqms8KSkA",
   timestamps: [
-    { start: "00:00:00.000", end: "00:00:05.000" },
-    { start: "00:00:07.010", end: "00:00:10.020" },
-    { start: "00:00:11.000", end: "00:00:14.030" },
+    { start: "00:00:00.860", end: "00:00:03.293" },
+    { start: "00:00:07.126", end: "00:00:09.726" },
+    { start: "00:00:12.426", end: "00:00:13.728" },
   ],
   concurrencyLimit: 2,
   shortsConfig: {
