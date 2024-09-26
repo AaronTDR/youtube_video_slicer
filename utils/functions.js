@@ -71,7 +71,8 @@ export const getSeconds = (timestamp) => {
     }
   });
 
-  // Assign hours and minutes to the first two elements of the array  [hours, minutes] = timeParts;
+  // Assign hours and minutes to the first two elements of the array
+  [hours, minutes] = timeParts;
 
   // Validate hours, minutes, seconds, and milliseconds
   if (
