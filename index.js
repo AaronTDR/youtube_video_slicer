@@ -76,7 +76,7 @@ const ytConcatenateSlices = async (
 
       const command =
         `${ffmpeg_exe_path} -i "${workingFolderPath}${fileNameOutputWithoutExtension}${fileExtension}" ` +
-        `-vf "split[original][copy];[copy]scale=-1:ih*(16/9)*(16/9),crop=w=ih*9/16,gblur=sigma=20[blurred];[blurred][original]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2" ` +
+        `-vf "split[original][copy];[copy]scale=-1:(ih*0.80)*(16/9)*(16/9),crop=w=ih*9/16,gblur=sigma=25[blurred];[blurred][original]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2` +
         `"${blurredShortFullPathname}"`;
       console.log("\nCommand: ", command, "\n");
       await execP(command);
