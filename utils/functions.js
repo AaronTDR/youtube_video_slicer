@@ -19,12 +19,17 @@ export const formatTime = (time) => {
     );
   }
 
+  // If it is a single number (1 or 2 digits), we treat it as seconds
+  if (/^\d{1,2}$/.test(time)) {
+    const seconds = Number(time);
+    return `00:00:${String(seconds).padStart(2, "0")}.000`;
+  }
+
   // Divide the time by ":"
   const parts = time.split(":").map(Number);
 
-  // Validates if the format is hours, minutes and seconds
+  // Validates if the format is minutes and seconds (MM:SS)
   if (parts.length === 2) {
-    // Format case "MM:SS" => We convert to "00:MM:SS.000"
     const [minutes, seconds] = parts;
     if (minutes > 59 || seconds > 59) {
       throw new RangeError(
@@ -36,7 +41,7 @@ export const formatTime = (time) => {
       "0"
     )}.000`;
   } else if (parts.length === 3) {
-    // Format case "HH:MM:SS" => We convert to "HH:MM:SS.000"
+    // Validates if the format is hours, minutes and seconds(HH:MM:SS)
     const [hours, minutes, seconds] = parts;
     if (hours > 23 || minutes > 59 || seconds > 59) {
       throw new RangeError(
@@ -185,12 +190,12 @@ export const processInBatches = async (tasks, limit) => {
       executing.add(p);
 
       if (executing.size >= limit) {
-        console.log('Processing batch of segments. Number: ', batchNumber)
+        console.log("Processing batch of segments. Number: ", batchNumber);
         await Promise.race(executing);
         batchNumber++;
       }
     }
-    console.log('Processing batch of segments. Number: ', batchNumber)
+    console.log("Processing batch of segments. Number: ", batchNumber);
     return Promise.all(results);
   } catch (error) {
     console.error(error);

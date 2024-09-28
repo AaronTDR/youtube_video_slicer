@@ -3,12 +3,14 @@ export const config = {
   ffprobe_exe_path: "ffprobe",
   workingFolderPath: "C:/users/aaron/downloads/result/",
   segmentsFolderPath: "C:/users/aaron/downloads/result/segments/",
-  url: "https://www.youtube.com/watch?v=aIxqms8KSkA",
   timestamps: [
-    { start: "00:00:00.860", end: "00:00:03.293" },
-    { start: "00:00:07.126", end: "00:00:09.726" },
-    { start: "00:00:12.426", end: "00:00:13.728" },
+    { start: "00:00:04.034", end: "00:00:06.282" },
+    { start: "00:00:22.478", end: "00:00:23.951" },
+    { start: "00:00:25.296", end: "00:00:30.461" },
+    // { start: "00:25:41.000", end: "00:26:10.000" },
+    // { start: "00:26:12.000", end: "00:26:41.000" },
   ],
+  url: "",
   concurrencyLimit: 2,
   shortsConfig: {
     shortThumbnailPath: "C:/users/aaron/downloads/result/short_1.png",
