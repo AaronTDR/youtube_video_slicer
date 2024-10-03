@@ -2,7 +2,7 @@ import validateDirectoryExists from "./validateDirectoryExists.js";
 import validateTimestamps from "./validateTimestamps.js";
 import validateMaxDuration from "./validateMaxDuration.js";
 
-const validations = async (videoUrl, timestamps, workingFolderPath) => {
+const validations = async (timestamps, workingFolderPath) => {
   try {
     // Validate if the directory exists
     await validateDirectoryExists(workingFolderPath);
@@ -16,7 +16,7 @@ const validations = async (videoUrl, timestamps, workingFolderPath) => {
     }
 
     // Validate if timestamp exceeds video duration
-    await validateMaxDuration(videoUrl, timestamps);
+    await validateMaxDuration(timestamps[0].url, timestamps);
   } catch (error) {
     console.error("Unsuccessful validation.");
     console.error("Stack:", error.stack);
