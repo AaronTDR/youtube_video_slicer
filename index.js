@@ -14,7 +14,6 @@ import { exec } from "child_process";
 const execP = promisify(exec);
 
 /*
- * url: Address of the video you want to section.
  * directoryPath: Path of the directory where the temporary files will be stored and where the final result will be saved.
  * timestamps: Array corresponding to timestamps in HH:MM:SS format.
  * concurrencyLimit: Limit the number of segments that are processed at a time.
