@@ -129,9 +129,8 @@ const ytConcatenateSlices = async (
           );
         }
       }
+      console.log("-----DONE-----");
     });
-
-    console.log("-----DONE-----");
   } catch (error) {
     console.error("Error occurred at validations function.", error);
   }
