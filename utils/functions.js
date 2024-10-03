@@ -201,3 +201,27 @@ export const processInBatches = async (tasks, limit) => {
     console.error(error);
   }
 };
+
+// Get ID from URL
+const getIdFromUrl = (url) => {
+  const idMatch = url.match(/v=([a-zA-Z0-9_-]+)/);
+  return idMatch ? idMatch[1] : null;
+};
+
+// Group timestamps by ID
+export const groupById = (timestamps) => {
+  const grouped = {};
+
+  timestamps.forEach((timestamp) => {
+    const videoId = getIdFromUrl(timestamp.url);
+    if (videoId) {
+      if (!grouped[videoId]) {
+        grouped[videoId] = [];
+      }
+      grouped[videoId].push(timestamp);
+    }
+  });
+
+  // Convert the object to an array of arrays
+  return Object.values(grouped);
+};
