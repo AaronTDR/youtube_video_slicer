@@ -203,25 +203,18 @@ export const processInBatches = async (tasks, limit) => {
 };
 
 // Get ID from URL
-const getIdFromUrl = (url) => {
+export const getIdFromUrl = (url) => {
   const idMatch = url.match(/v=([a-zA-Z0-9_-]+)/);
   return idMatch ? idMatch[1] : null;
 };
 
-// Group timestamps by ID
-export const groupById = (timestamps) => {
-  const grouped = {};
-
-  timestamps.forEach((timestamp) => {
-    const videoId = getIdFromUrl(timestamp.url);
-    if (videoId) {
-      if (!grouped[videoId]) {
-        grouped[videoId] = [];
-      }
-      grouped[videoId].push(timestamp);
+export const filterDuplicates = (timestamps) => {
+  const uniqueUrls = new Set();
+  return timestamps.filter((item) => {
+    if (!uniqueUrls.has(item.url)) {
+      uniqueUrls.add(item.url);
+      return true;
     }
+    return false;
   });
-
-  // Convert the object to an array of arrays
-  return Object.values(grouped);
 };
