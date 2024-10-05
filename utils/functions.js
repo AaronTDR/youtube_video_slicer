@@ -208,13 +208,34 @@ export const getIdFromUrl = (url) => {
   return idMatch ? idMatch[1] : null;
 };
 
+// Filter duplicate items
 export const filterDuplicates = (timestamps) => {
-  const uniqueUrls = new Set();
+  const uniquePaths = new Set();
   return timestamps.filter((item) => {
-    if (!uniqueUrls.has(item.url)) {
-      uniqueUrls.add(item.url);
+    const path = item.url || item.path;
+    if (!uniquePaths.has(path)) {
+      uniquePaths.add(path);
       return true;
     }
     return false;
   });
+};
+
+// Filters the videos to be downloaded and returns an array of promises to perform the downloads simultaneously
+export const processFilteredResults = (
+  filteredResults,
+  workingFolderPath,
+  callback
+) => {
+  // Filters out elements that contain 'url' and lack 'path'
+  const filteredElements = filteredResults.filter(
+    (item) => item.url && !item.path
+  );
+
+  // Create a promise arrangement
+  const promises = filteredElements.map((element) =>
+    callback(element.url, workingFolderPath)
+  );
+
+  return promises;
 };
