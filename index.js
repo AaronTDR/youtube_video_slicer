@@ -7,7 +7,6 @@ import {
   deleteFile,
   filterDuplicates,
   processFilteredResults,
-  updateUrlsWithPaths,
 } from "./utils/functions.js";
 
 import { promisify } from "util";
@@ -22,15 +21,7 @@ const execP = promisify(exec);
  * ffprobe_exe_path: Path to ffprobe executable
  */
 
-const {
-  ffmpeg_exe_path,
-  ffprobe_exe_path,
-  workingFolderPath,
-  segmentsFolderPath,
-  timestamps,
-  concurrencyLimit,
-  targetFormat,
-} = config;
+const { workingFolderPath, timestamps, concurrencyLimit } = config;
 
 const ytConcatenateSlices = async () => {
   try {
@@ -52,7 +43,7 @@ const ytConcatenateSlices = async () => {
 
     console.log("-----DONE-----");
   } catch (error) {
-    // console.error("Error occurred at index.", error);
+    console.error("Error occurred at index.", error);
   }
 };
 

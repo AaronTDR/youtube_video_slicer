@@ -1,8 +1,11 @@
 import fs from "fs";
-import { promisify } from "util";
 import { exec } from "child_process";
 import path from "path";
-import { processInBatches, getSeconds } from "../utils/functions.js";
+import {
+  processInBatches,
+  getSeconds,
+  generateSafeFileName,
+} from "../utils/functions.js";
 import { config } from "../config.js";
 import { updateUrlsWithPaths } from "../utils/functions.js";
 
@@ -113,7 +116,6 @@ async function extractSegments(
   };
 }
 
-// Function to concatenate video segments and apply conditional logic for YouTube Shorts
 async function concatenateSegments(
   ffmpeg_exe_path,
   workingFolderPath,
@@ -254,28 +256,24 @@ const cycleSegments = async () => {
   return segmentPromises.map((segment) => segment.file);
 };
 // Main function
-async function cutAndConcatenateVideo(concurrencyLimit, targetFormat) {
-  console.log("Starting cutAndConcatenateVideo");
+async function cutAndConcatenateVideo(concurrencyLimit) {
   try {
     const segments = await cycleSegments();
-    console.log(
-      "🚀 ~ cutAndConcatenateVideo ~ segments JOIN:",
-      segments.join("")
-    );
-    console.log(`Segments processed: ${segments.length}`);
+
+    const safeFileName = generateSafeFileName();
+    const targetFormat = ".mp4";
 
     // Concatenate the segments
     await concatenateSegments(
       ffmpeg_exe_path,
       workingFolderPath,
       segments.join(""),
-      "Temporal_Video_Name",
+      safeFileName,
       targetFormat
     );
   } catch (error) {
     console.error("Error in cutAndConcatenateVideo:", error);
   }
-  console.log("Finished cutAndConcatenateVideo");
 }
 
 export default cutAndConcatenateVideo();

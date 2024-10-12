@@ -26,7 +26,6 @@ export const config = {
     },
   ],
   concurrencyLimit: 2,
-  targetFormat: ".mp4",
   shortsConfig: {
     shortThumbnailPath: "C:/users/aaron/downloads/result/short_1.png",
     generateThumbnail: false,
