@@ -172,33 +172,45 @@ export const getExtension = async (directoryPath, videoName) => {
   }
 };
 
-// Run promises in batches
 export const processInBatches = async (tasks, limit) => {
   try {
     let batchNumber = 1;
     const results = [];
-    const executing = new Set();
 
-    console.log("\nNumber of batches to be processed: ", tasks.length);
+    console.log(`Total number of tasks: ${tasks.length}`);
 
-    for (const task of tasks) {
-      const p = task().then((result) => {
-        executing.delete(p);
-        return result;
+    for (let i = 0; i < tasks.length; i += limit) {
+      const batch = tasks.slice(i, i + limit);
+      console.log(
+        `Processing batch ${batchNumber}. Tasks in this batch: ${batch.length}`
+      );
+
+      const batchPromises = batch.map((task, index) => {
+        return task()
+          .then((result) => {
+            console.log(`Task ${i + index + 1} completed successfully`);
+            return result;
+          })
+          .catch((error) => {
+            console.error(
+              `Error in task ${i + index + 1} of batch ${batchNumber}:`,
+              error
+            );
+            return null;
+          });
       });
-      results.push(p);
-      executing.add(p);
 
-      if (executing.size >= limit) {
-        console.log("Processing batch of segments. Number: ", batchNumber);
-        await Promise.race(executing);
-        batchNumber++;
-      }
+      const batchResults = await Promise.all(batchPromises);
+      results.push(...batchResults.filter((result) => result !== null));
+
+      console.log(`Finished processing batch ${batchNumber}`);
+      batchNumber++;
     }
-    console.log("Processing batch of segments. Number: ", batchNumber);
-    return Promise.all(results);
+
+    console.log(`All batches processed. Total results: ${results.length}`);
+    return results;
   } catch (error) {
-    console.error(error);
+    console.error("Error in processInBatches:", error);
   }
 };
 
@@ -239,3 +251,35 @@ export const processFilteredResults = (
 
   return promises;
 };
+
+export function updateUrlsWithPaths(workingFolderPath, timestamps) {
+  const updatedTimestamps = timestamps.map((timestamp) => {
+    // Clonar el objeto para evitar la mutación del original
+    const newTimestamp = { ...timestamp };
+
+    if (newTimestamp.url) {
+      // Obtener los últimos 11 dígitos de la URL
+      const searchKey = newTimestamp.url.slice(-11);
+
+      // Encontrar el archivo en el directorio de trabajo
+      let foundPath = null;
+      const files = fs.readdirSync(workingFolderPath);
+
+      for (const file of files) {
+        if (file.includes(searchKey)) {
+          foundPath = path.join(workingFolderPath, file);
+          break;
+        }
+      }
+
+      // Si se encontró el archivo, actualizar el objeto
+      if (foundPath) {
+        newTimestamp.path = foundPath;
+        delete newTimestamp.url;
+      }
+    }
+    return newTimestamp;
+  });
+
+  return updatedTimestamps;
+}

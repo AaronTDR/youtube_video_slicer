@@ -11,7 +11,6 @@ const sanitizeTitle = (title) => {
 };
 
 const downloadVideoYtDlp = async (url, workingFolderPath) => {
-  console.log("🚀 ~ downloadVideoYtDlp ~ url:", url);
   // Extract video ID from URL
   const videoId = getIdFromUrl(url);
   if (!videoId) {
