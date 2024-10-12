@@ -107,9 +107,6 @@ async function extractSegments(
     file += `file '${videoSegmentNameEnd}'\n`;
   }
 
-  // ?console.log("Optimizations found: ", optimizationsFound);
-  // await processInBatches(ffmpegCommandsToRun, concurrencyLimit);
-
   return {
     file,
     commands: ffmpegCommandsToRun,
@@ -133,9 +130,7 @@ async function concatenateSegments(
     const concatCommand = `${ffmpeg_exe_path} -f concat -safe 0 -i ${fileConcatFullPath} -c copy ${fullPathOutputVideo}`;
     await execP(concatCommand);
 
-    // Condicional para videos de Youtube Shorts
     if (isYoutubeShort === true) {
-      // Desenfocar la parte superior e inferior del video y hacerlo vertical
       const blurredShortName = `${fileNameOutputWithoutExtension}_BLURRED_top_bottom${fileExtension}`;
       const blurredShortFullPathname = `${workingFolderPath}${blurredShortName}`;
 
@@ -151,7 +146,6 @@ async function concatenateSegments(
         "\n"
       );
 
-      // Convertir el video a un formato compatible con Youtube Shorts
       const compatibleShortName = `${fileNameOutputWithoutExtension}_COMPATIBLE_to_youtube_format${fileExtension}`;
       const compatibleShortFullPathName = `${workingFolderPath}${compatibleShortName}`;
       const convertCommand =
@@ -166,7 +160,6 @@ async function concatenateSegments(
         "\n"
       );
 
-      // Generar miniatura si está configurado
       if (shortsConfig && shortsConfig.generateThumbnail === true) {
         if (
           typeof shortsConfig.shortThumbnailPath !== "string" ||
@@ -255,7 +248,6 @@ const cycleSegments = async () => {
 
   console.log(`Total segments prepared: ${segmentPromises.length}`);
 
-  // Procesar todos los comandos
   const allCommands = segmentPromises.flatMap((segment) => segment.commands);
   await processInBatches(allCommands, concurrencyLimit);
 
@@ -266,14 +258,11 @@ async function cutAndConcatenateVideo(concurrencyLimit, targetFormat) {
   console.log("Starting cutAndConcatenateVideo");
   try {
     const segments = await cycleSegments();
-    console.log("🚀 ~ cutAndConcatenateVideo ~ segments:", segments);
     console.log(
       "🚀 ~ cutAndConcatenateVideo ~ segments JOIN:",
       segments.join("")
     );
     console.log(`Segments processed: ${segments.length}`);
-
-    // const targetFormat = ".webm";
 
     // Concatenate the segments
     await concatenateSegments(
