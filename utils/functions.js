@@ -254,14 +254,14 @@ export const processFilteredResults = (
 
 export function updateUrlsWithPaths(workingFolderPath, timestamps) {
   const updatedTimestamps = timestamps.map((timestamp) => {
-    // Clonar el objeto para evitar la mutación del original
+    // Clone the object to avoid mutation of the original
     const newTimestamp = { ...timestamp };
 
     if (newTimestamp.url) {
-      // Obtener los últimos 11 dígitos de la URL
+      // Get the last 11 digits of the URL
       const searchKey = newTimestamp.url.slice(-11);
 
-      // Encontrar el archivo en el directorio de trabajo
+      // Find the file in the working directory
       let foundPath = null;
       const files = fs.readdirSync(workingFolderPath);
 
@@ -272,7 +272,7 @@ export function updateUrlsWithPaths(workingFolderPath, timestamps) {
         }
       }
 
-      // Si se encontró el archivo, actualizar el objeto
+      // If the file was found, update the object
       if (foundPath) {
         newTimestamp.path = foundPath;
         delete newTimestamp.url;
@@ -295,4 +295,14 @@ export const generateSafeFileName = () => {
 
   // Formato: YYYY-MM-DD_HH-MM-SS
   return `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
+};
+
+// Helper function for FFmpeg time format
+export const formatFFmpegTime = (seconds) => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = (seconds % 60).toFixed(3);
+  return [hours, minutes, secs]
+    .map((unit) => String(unit).padStart(2, "0"))
+    .join(":");
 };

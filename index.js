@@ -1,17 +1,11 @@
-import { config } from "./config.js";
-
 import downloadVideoYtDlp from "./downloadVideo/downloadVideo.js";
 import cutAndConcatenateVideo from "./cutAndConcatenateVideo/cutAndConcatenateVideo.js";
-
 import {
   deleteFile,
   filterDuplicates,
   processFilteredResults,
 } from "./utils/functions.js";
-
-import { promisify } from "util";
-import { exec } from "child_process";
-const execP = promisify(exec);
+import { config } from "./config.js";
 
 /*
  * directoryPath: Path of the directory where the temporary files will be stored and where the final result will be saved.
@@ -21,7 +15,7 @@ const execP = promisify(exec);
  * ffprobe_exe_path: Path to ffprobe executable
  */
 
-const { workingFolderPath, timestamps, concurrencyLimit } = config;
+const { workingFolderPath, timestamps } = config;
 
 const ytConcatenateSlices = async () => {
   try {
@@ -36,7 +30,7 @@ const ytConcatenateSlices = async () => {
         downloadVideoYtDlp
       )
     );
-    cutAndConcatenateVideo(concurrencyLimit, targetFormat);
+    cutAndConcatenateVideo();
 
     // Delete temporary video
     // await deleteFile(workingFolderPath + temporalVideoName + videoExtension);
