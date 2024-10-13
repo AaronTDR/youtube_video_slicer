@@ -15,7 +15,7 @@ import { config } from "./config.js";
  * ffprobe_exe_path: Path to ffprobe executable
  */
 
-const { workingFolderPath, timestamps } = config;
+const { workingFolderPath, timestamps, deleteDownloadedVideos } = config;
 
 const ytConcatenateSlices = async () => {
   try {
@@ -33,7 +33,9 @@ const ytConcatenateSlices = async () => {
     cutAndConcatenateVideo();
 
     // Delete temporary video
-    // await deleteFile(workingFolderPath + temporalVideoName + videoExtension);
+    // if (deleteDownloadedVideos) {
+    //   await deleteFile(workingFolderPath + temporalVideoName + videoExtension);
+    // }
 
     console.log("-----DONE-----");
   } catch (error) {

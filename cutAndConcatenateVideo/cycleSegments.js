@@ -25,8 +25,6 @@ const cycleSegments = async () => {
     const extension = path.extname(timestamp.path);
 
     try {
-      console.log(`Processing timestamp: ${JSON.stringify(timestamp)}`);
-
       const command = `${config.ffprobe_exe_path} -loglevel error -select_streams v:0 -show_entries packet=pts_time,flags -of csv=print_section=0 ${timestamp.path}`;
 
       const result = await execP(command, { maxBuffer: 1048576000 });
@@ -37,8 +35,6 @@ const cycleSegments = async () => {
           keyframes.push(parseFloat(keyframe.replace(",K__", "")));
         }
       });
-
-      console.log(`Keyframes found: ${keyframes.length}`);
 
       const timestampsInSeconds = {
         start: getSeconds(timestamp.start),
@@ -54,7 +50,6 @@ const cycleSegments = async () => {
       );
 
       segmentPromises.push({ file, commands });
-      console.log(`Segment extraction prepared for: ${timestamp.path}`);
     } catch (error) {
       console.error(
         `Error processing timestamp ${JSON.stringify(timestamp)}:`,

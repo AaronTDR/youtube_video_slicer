@@ -12,7 +12,7 @@ async function cutAndConcatenateVideo() {
     // Concatenate the segments
     await concatenateSegments(segments.join(""), safeFileName);
   } catch (error) {
-    console.error("Error in cutAndConcatenateVideo:", error);
+    console.error("Error at cutAndConcatenateVideo:", error);
   }
 }
 

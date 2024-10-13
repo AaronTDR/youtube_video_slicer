@@ -3,6 +3,7 @@ export const config = {
   ffprobe_exe_path: "ffprobe",
   workingFolderPath: "C:/users/aaron/downloads/result/",
   segmentsFolderPath: "C:/users/aaron/downloads/result/segments/",
+  deleteDownloadedVideos: false,
   timestamps: [
     {
       start: "00:00:10.478",
@@ -29,7 +30,7 @@ export const config = {
   targetFormat: ".mp4",
   shortsConfig: {
     shortThumbnailPath: "C:/users/aaron/downloads/result/short_1.png",
-    generateThumbnail: true,
+    generateThumbnail: false,
   },
-  isYoutubeShort: true,
+  isYoutubeShort: false,
 };
