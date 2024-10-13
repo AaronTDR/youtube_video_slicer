@@ -54,7 +54,9 @@ const ytConcatenateSlices = async () => {
     }
 
     // Source video routes
-    console.log("Source videos stored in the routes: ", downloadedVideoPaths);
+    if (downloadedVideoPaths.filter((el) => el !== undefined).length) {
+      console.log("Source videos stored in the routes: ", downloadedVideoPaths);
+    }
 
     console.log("-----DONE-----");
   } catch (error) {

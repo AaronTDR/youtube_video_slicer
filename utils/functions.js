@@ -251,3 +251,46 @@ export const formatFFmpegTime = (seconds) => {
     .map((unit) => String(unit).padStart(2, "0"))
     .join(":");
 };
+
+// Check if all elements of the array are equal
+export function equalStrings(strings) {
+  const firstElement = strings[0];
+  for (const str of strings) {
+    if (str !== firstElement) {
+      return false;
+    }
+  }
+  return true;
+}
+
+export const getResolutions = async (
+  timestampsWithPaths,
+  ffprobe_exe_path,
+  execP
+) => {
+  const resolutions = [];
+
+  for (const { path } of timestampsWithPaths) {
+    try {
+      const command = `${ffprobe_exe_path} -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 ${path}`;
+
+      // Ejecutar el comando y esperar la salida
+      const { stdout, stderr } = await execP(command);
+
+      if (stderr) {
+        console.error("Error de ffprobe:", stderr);
+        continue;
+      }
+
+      const resolution = stdout.trim(); // Salida del comando (ej. "1920x1080")
+      resolutions.push(resolution);
+    } catch (error) {
+      console.error(
+        `Error al obtener la resolución para el archivo ${path}.`,
+        error
+      );
+    }
+  }
+
+  return resolutions;
+};
