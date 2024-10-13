@@ -1,5 +1,4 @@
 import fs from "fs";
-import fsPromises from "fs/promises";
 import path from "path";
 
 // Returns the length of the video in HH:MM:SS format
@@ -97,44 +96,6 @@ export const getSeconds = (timestamp) => {
 
   // Calculate the total in seconds including milliseconds
   return hours * 3600 + minutes * 60 + seconds + milliseconds / 1000;
-};
-
-// Convert seconds to timestamp
-export const secondsToTimestamp = (seconds) => {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const resultingSeconds = seconds % 60;
-
-  // Format timestamp
-  const format = (value) => (value < 10 ? `0${value}` : `${value}`);
-
-  return `${format(hours)}:${format(minutes)}:${format(resultingSeconds)}`;
-};
-
-// Replace special characters with underscores
-export const removeSpecialCharacters = (inputString) => {
-  const replaceSpacesRegex = /\s+/g;
-  const removeSpecialCharactersRegex = /[^\p{Letter}\d\-_]/gu;
-
-  const replacedSpaces = inputString.replace(replaceSpacesRegex, "_");
-
-  const cleanedString = replacedSpaces.replace(
-    removeSpecialCharactersRegex,
-    ""
-  );
-
-  return cleanedString;
-};
-
-// Get list of files in folder
-export const getFiles = async (directoryPath) => {
-  try {
-    const files = await fsPromises.readdir(directoryPath);
-    return files;
-  } catch (error) {
-    console.error("Error reading folder:", error.message);
-    throw error;
-  }
 };
 
 export const deleteFile = (directoryPath) => {
