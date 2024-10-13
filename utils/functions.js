@@ -143,7 +143,7 @@ export const deleteFile = (directoryPath) => {
       if (err) {
         reject(new Error(`"Error deleting the file:", ${err.message}`));
       } else {
-        console.log("File successfully deleted.");
+        console.log(`File ${directoryPath} successfully deleted.`);
         resolve();
       }
     });
@@ -151,25 +151,9 @@ export const deleteFile = (directoryPath) => {
 };
 
 // Get extension file
-export const getExtension = async (directoryPath, videoName) => {
-  try {
-    // Read the contents of the specified directory synchronously.
-    const files = await fsPromises.readdir(directoryPath);
-
-    // Find a file in the list that includes the specified videoName.
-    const foundFile = files.find((file) => file.includes(videoName));
-
-    if (foundFile) {
-      const videoExtension = path.extname(foundFile);
-      return videoExtension;
-    } else {
-      throw new Error(
-        `Video: '${videoName}' not found in directory: '${directoryPath}', the file extension could not be obtained `
-      );
-    }
-  } catch (error) {
-    console.error(error);
-  }
+export const getExtension = (filePath) => {
+  const videoExtension = path.extname(filePath);
+  return videoExtension;
 };
 
 export const processInBatches = async (tasks, limit) => {

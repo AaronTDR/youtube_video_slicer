@@ -37,7 +37,7 @@ const ytConcatenateSlices = async () => {
       (path) => path !== null
     );
 
-    // cutAndConcatenateVideo();
+    await cutAndConcatenateVideo();
 
     // Delete temporary video
     if (deleteDownloadedVideos) {
@@ -47,7 +47,7 @@ const ytConcatenateSlices = async () => {
             deleteFile(`${file}${targetFormat}`)
           )
         );
-        console.log("All files successfully deleted.");
+        console.log("All source videos were successfully deleted.");
       } catch (error) {
         console.error("Error deleting files:", error);
       }
