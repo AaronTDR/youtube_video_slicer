@@ -2,8 +2,10 @@ import cp from "child_process";
 import fs from "fs";
 import path from "path";
 import helpGetVideoTitle from "../helpers/helpGetVideoTitle.js";
-
 import { getIdFromUrl } from "../utils/functions.js";
+import { config } from "../config.js";
+
+const { deleteDownloadedVideos } = config;
 
 // Clean video title
 const sanitizeTitle = (title) => {
@@ -53,26 +55,26 @@ const downloadVideoYtDlp = async (url, workingFolderPath) => {
   ytDlpProcess.stdout.pipe(process.stdout); // Redirect progress to the console
 
   // Wait for the download process to finish
-  const ytDlpProcessPromise = new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     ytDlpProcess.on("close", (code) => {
       if (code === 0) {
-        console.log(`Video downloaded and saved as: ${videoFilePath}`);
-        resolve({ videoFileName });
+        resolve(videoFilePath); // Resolve with the file path
+        if (!deleteDownloadedVideos) {
+          console.log(`Video downloaded and saved as: ${videoFilePath}`);
+        }
       } else {
         console.error("Error downloading video with yt-dlp:", code);
         reject(`Error downloading video (code ${code})`);
       }
-      ytDlpProcess.removeAllListeners(); // Remove listeners after resolving
+      ytDlpProcess.removeAllListeners();
     });
 
     ytDlpProcess.on("error", (err) => {
       console.error("Error starting yt-dlp process:", err);
       reject("Error starting yt-dlp process");
-      ytDlpProcess.removeAllListeners(); // Delete listeners after rejecting
+      ytDlpProcess.removeAllListeners();
     });
   });
-
-  return ytDlpProcessPromise;
 };
 
 export default downloadVideoYtDlp;

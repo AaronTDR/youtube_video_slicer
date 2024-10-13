@@ -15,7 +15,8 @@ import { config } from "./config.js";
  * ffprobe_exe_path: Path to ffprobe executable
  */
 
-const { workingFolderPath, timestamps, deleteDownloadedVideos } = config;
+const { workingFolderPath, timestamps, deleteDownloadedVideos, targetFormat } =
+  config;
 
 const ytConcatenateSlices = async () => {
   try {
@@ -23,19 +24,37 @@ const ytConcatenateSlices = async () => {
     const uniqueTimestamps = filterDuplicates(timestamps);
 
     // Download all videos asynchronously
-    await Promise.all(
+    const downloadResults = await Promise.all(
       processFilteredResults(
         uniqueTimestamps,
         workingFolderPath,
         downloadVideoYtDlp
       )
     );
-    cutAndConcatenateVideo();
+
+    // Filters null elements if they exist
+    const downloadedVideoPaths = downloadResults.filter(
+      (path) => path !== null
+    );
+
+    // cutAndConcatenateVideo();
 
     // Delete temporary video
-    // if (deleteDownloadedVideos) {
-    //   await deleteFile(workingFolderPath + temporalVideoName + videoExtension);
-    // }
+    if (deleteDownloadedVideos) {
+      try {
+        await Promise.all(
+          downloadedVideoPaths.map((file) =>
+            deleteFile(`${file}${targetFormat}`)
+          )
+        );
+        console.log("All files successfully deleted.");
+      } catch (error) {
+        console.error("Error deleting files:", error);
+      }
+    }
+
+    // Source video routes
+    console.log("Source videos stored in the routes: ", downloadedVideoPaths);
 
     console.log("-----DONE-----");
   } catch (error) {
