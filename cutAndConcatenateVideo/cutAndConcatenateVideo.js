@@ -16,4 +16,4 @@ async function cutAndConcatenateVideo() {
   }
 }
 
-export default cutAndConcatenateVideo();
+export default cutAndConcatenateVideo;
