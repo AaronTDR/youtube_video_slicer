@@ -1,3 +1,4 @@
+import validations from "./validations/validations.js";
 import downloadVideoYtDlp from "./downloadVideo/downloadVideo.js";
 import cutAndConcatenateVideo from "./cutAndConcatenateVideo/cutAndConcatenateVideo.js";
 import {
@@ -15,11 +16,18 @@ import { config } from "./config.js";
  * ffprobe_exe_path: Path to ffprobe executable
  */
 
-const { workingFolderPath, timestamps, deleteDownloadedVideos, targetFormat } =
-  config;
+const {
+  workingFolderPath,
+  segmentsFolderPath,
+  timestamps,
+  deleteDownloadedVideos,
+  targetFormat,
+} = config;
 
 const ytConcatenateSlices = async () => {
   try {
+    await validations(timestamps, workingFolderPath, segmentsFolderPath);
+
     // Filter duplicate URLs, to only download each URL once
     const uniqueTimestamps = filterDuplicates(timestamps);
 
