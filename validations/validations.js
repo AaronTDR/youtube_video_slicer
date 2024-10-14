@@ -7,45 +7,75 @@ const validations = async (
   workingFolderPath,
   segmentsFolderPath
 ) => {
+  // Array to store all validation results
+  const validationResults = [];
+
   try {
-    // Validate if the directories exist
-    await Promise.all([
-      validateDirectoryExists(workingFolderPath),
-      validateDirectoryExists(segmentsFolderPath),
+    // Run directory and max duration validations in parallel
+    const [directoryValidations, maxDurationValidations] = await Promise.all([
+      // Directory validations
+      Promise.all([
+        validateDirectoryExists(workingFolderPath).catch((error) => ({
+          type: "directoryError",
+          error: `Working folder validation failed: ${error.message}`,
+        })),
+        validateDirectoryExists(segmentsFolderPath).catch((error) => ({
+          type: "directoryError",
+          error: `Segments folder validation failed: ${error.message}`,
+        })),
+      ]),
+      // Max duration validations
+      Promise.all(
+        timestamps.map((timestamp, index) =>
+          validateMaxDuration(timestamp, index)
+            .then(() => ({ success: true, index }))
+            .catch((error) => ({
+              type: "maxDurationError",
+              index,
+              error: error.message,
+            }))
+        )
+      ),
     ]);
-    // Validates that in all timestamps the start property is less than the end property
-    const wrongIndices = validateTimestamps(timestamps);
-    if (wrongIndices) {
-      throw new RangeError(
-        `Error at validateTimestamps function, 'start' property cannot be greater than 'end' property at timestamps position: ${wrongIndices.indices}`
-      );
+
+    // Process directory validation results
+    validationResults.push(...directoryValidations.filter((result) => result));
+
+    // Process timestamp validation (synchronous)
+    const timestampErrors = validateTimestamps(timestamps);
+    if (timestampErrors) {
+      validationResults.push({
+        type: "timestampError",
+        error: `'start' property cannot be greater than 'end' property at timestamps position: ${timestampErrors.indices}`,
+      });
     }
 
-    // Validate if timestamp exceeds video duration
-    // Create an array of promises for all timestamp validations
-    const validationPromises = timestamps.map((timestamp, index) =>
-      validateMaxDuration(timestamp, index)
-        .then(() => ({ success: true, index }))
-        .catch((error) => ({ success: false, index, error: error.message }))
+    // Process max duration validation results
+    const maxDurationErrors = maxDurationValidations.filter(
+      (result) => result.type === "maxDurationError"
     );
+    validationResults.push(...maxDurationErrors);
 
-    // Wait for all validations to complete
-    const results = await Promise.all(validationPromises);
-
-    // Filter out the failed validations
-    const failures = results.filter((result) => !result.success);
-
-    if (failures.length > 0) {
+    // Check if there are any validation errors
+    if (validationResults.length > 0) {
       console.error("The following validations failed:");
-      failures.forEach((failure) => {
-        console.error(`Index ${failure.index}: ${failure.error}`);
+      validationResults.forEach((result) => {
+        if (result.type === "maxDurationError") {
+          console.error(
+            `Max Duration Error at index ${result.index}: ${result.error}`
+          );
+        } else {
+          console.error(`${result.type}: ${result.error}`);
+        }
       });
       throw new Error(
         "One or more validations failed. Check the logs for details."
       );
     }
+
+    console.log("All validations passed successfully.");
   } catch (error) {
-    console.error("Unsuccessful validation.");
+    console.error("Validation process encountered an error:");
     console.error("Stack:", error.stack);
     throw error;
   }
