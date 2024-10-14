@@ -30,7 +30,7 @@ async function concatenateSegments(file, videoName) {
         `"${blurredShortFullPathname}"`;
       await execP(command);
 
-      const compatibleShortName = `${fileNameOutputWithoutExtension}_COMPATIBLE_to_youtube_format${targetFormat}`;
+      const compatibleShortName = `${fileNameOutputWithoutExtension}_COMPATIBLE_to_youtube_format.mp4`;
       const compatibleShortFullPathName = `${workingFolderPath}${compatibleShortName}`;
       const convertCommand =
         `${ffmpeg_exe_path} -i "${blurredShortFullPathname}" ` +
@@ -49,7 +49,7 @@ async function concatenateSegments(file, videoName) {
           throw err;
         }
 
-        const imageVideoShortName = `${fileNameOutputWithoutExtension}_thumbnail_video${targetFormat}`;
+        const imageVideoShortName = `${fileNameOutputWithoutExtension}_thumbnail_video.mp4`;
         const imageVideoShortFullPathname = `${workingFolderPath}${imageVideoShortName}`;
 
         const imageCommand =
