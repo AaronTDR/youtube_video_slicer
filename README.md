@@ -44,8 +44,6 @@ The script will process the videos according to the specified timestamps, genera
 
 ## Object config values
 
-## Script Configuration
-
 The `config` file contains the following configuration options:
 
 - **ffmpeg_exe_path**: Specifies the path to the `ffmpeg` executable, used for processing videos.
@@ -84,40 +82,32 @@ Example of a timestamp format:
 ]
 ```
 
-## Below is a brief description of the main internal processes within the `ytConcatenateSlices` function.
-
-### Principal functions
-
-- `downloadVideoYtDlp`
-- `captureAndCutVideo`
-- `concatenateVideos`
-
-## ytConcatenateSlices Function Overview
+## Below is a brief description of the main internal processes
 
 The `ytConcatenateSlices` function performs several steps to validate, download, cut, and concatenate video segments. Below is a brief description of each step:
 
-1. **Validations**:  
+1. **Validations**:
    The function begins by running validations on the `timestamps`, `workingFolderPath`, and `segmentsFolderPath` to ensure the required inputs are valid.
 
-2. **Filter Duplicate URLs**:  
+2. **Filter Duplicate URLs**:
    It filters out duplicate URLs from the `timestamps` array, so each URL is only downloaded once.
 
-3. **Asynchronous Video Download**:  
+3. **Asynchronous Video Download**:
    All unique videos are downloaded concurrently using the `downloadVideoYtDlp` function. The results of the download are stored in an array.
 
-4. **Filter Null Results**:  
+4. **Filter Null Results**:
    The function then filters out any `null` values from the download results to retain only valid file paths.
 
-5. **Cut and Concatenate Video**:  
+5. **Cut and Concatenate Video**:
    It proceeds to cut and concatenate the video segments using a helper function.
 
-6. **Delete Temporary Videos**:  
+6. **Delete Temporary Videos**:
    If the `deleteDownloadedVideos` option is enabled, the function attempts to delete the downloaded video files after processing. Any errors during this step are logged.
 
-7. **Log Source Video Paths**:  
+7. **Log Source Video Paths**:
    The file paths of the source videos are logged, as long as they exist and are not undefined.
 
-8. **Completion Message**:  
+8. **Completion Message**:
    Finally, the function logs a message indicating that the process is complete.
 
 In case of errors at any stage, they are caught and logged with an error message.
