@@ -1,9 +1,9 @@
 import path from "path";
-import execP from "./execP.js";
 import { config } from "../config.js";
 
 import extractSegments from "./extractSegments.js";
 import {
+  execP,
   updateUrlsWithPaths,
   processInBatches,
   getSeconds,

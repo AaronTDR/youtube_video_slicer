@@ -1,6 +1,6 @@
 import fs from "fs";
-import execP from "./execP.js";
 import { config } from "../config.js";
+import { execP } from "../utils/functions.js";
 
 const {
   ffmpeg_exe_path,

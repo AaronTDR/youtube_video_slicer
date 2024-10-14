@@ -1,5 +1,4 @@
-import execP from "./execP.js";
-import { formatFFmpegTime } from "../utils/functions.js";
+import { execP, formatFFmpegTime } from "../utils/functions.js";
 import { config } from "../config.js";
 
 const { ffmpeg_exe_path, segmentsFolderPath } = config;

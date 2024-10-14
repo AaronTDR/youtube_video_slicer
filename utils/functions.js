@@ -1,5 +1,21 @@
 import fs from "fs";
 import path from "path";
+import { exec } from "child_process";
+
+export const execP = (command) => {
+  return new Promise((resolve, reject) => {
+    console.log(`Executing command: ${command}`);
+    exec(command, { maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`exec error: ${error}`);
+        reject(error);
+        return;
+      }
+      console.log(`Command completed: ${command}`);
+      resolve({ stdout, stderr });
+    });
+  });
+};
 
 // Returns the length of the video in HH:MM:SS format
 /*
@@ -263,34 +279,47 @@ export function equalStrings(strings) {
   return true;
 }
 
-export const getResolutions = async (
-  timestampsWithPaths,
-  ffprobe_exe_path,
-  execP
-) => {
+// Get the resolutions of the videos. Output (example: "1920x1080")
+export const getResolutions = async (timestampsWithPaths, ffprobe_exe_path) => {
   const resolutions = [];
 
   for (const { path } of timestampsWithPaths) {
     try {
       const command = `${ffprobe_exe_path} -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 ${path}`;
 
-      // Ejecutar el comando y esperar la salida
       const { stdout, stderr } = await execP(command);
 
       if (stderr) {
-        console.error("Error de ffprobe:", stderr);
+        console.error("ffprobe error:", stderr);
         continue;
       }
 
-      const resolution = stdout.trim(); // Salida del comando (ej. "1920x1080")
+      const resolution = stdout.trim();
       resolutions.push(resolution);
     } catch (error) {
       console.error(
-        `Error al obtener la resolución para el archivo ${path}.`,
-        error
+        `Error getting resolution for file ${path}.`,
+        error.message
       );
     }
   }
 
   return resolutions;
+};
+
+// Get the duration in seconds of a video file from the computer
+export const getVideoDurationFile = async (ffprobe_exe_path, path) => {
+  try {
+    const command = `${ffprobe_exe_path} -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 ${path}`;
+
+    const { stdout, stderr } = await execP(command);
+
+    if (stderr) {
+      console.error("ffprobe error:", stderr);
+    }
+
+    return stdout.trim();
+  } catch (error) {
+    console.error(`Error trying to get file duration. ${error.message}`);
+  }
 };
