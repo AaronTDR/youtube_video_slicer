@@ -20,7 +20,7 @@ const downloadVideoYtDlp = async (url, workingFolderPath) => {
     return;
   }
 
-  // Get the title of the video
+  // Get video title
   const videoTitle = await helpGetVideoTitle(url);
   const sanitizedTitle = sanitizeTitle(videoTitle);
 
@@ -37,7 +37,7 @@ const downloadVideoYtDlp = async (url, workingFolderPath) => {
 
   if (exist) {
     console.log(`The video already exists: ${videoFileName}`);
-    return; // Do nothing if file already exists
+    return null; // Returns null if the video exists
   }
 
   console.log(

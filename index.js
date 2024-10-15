@@ -8,14 +8,6 @@ import {
 } from "./utils/functions.js";
 import { config } from "./config.js";
 
-/*
- * directoryPath: Path of the directory where the temporary files will be stored and where the final result will be saved.
- * timestamps: Array corresponding to timestamps in HH:MM:SS format.
- * concurrencyLimit: Limit the number of segments that are processed at a time.
- * ffmpeg_exe_path: Path to ffmpeg executable.
- * ffprobe_exe_path: Path to ffprobe executable
- */
-
 const {
   workingFolderPath,
   segmentsFolderPath,
@@ -51,9 +43,9 @@ const ytConcatenateSlices = async () => {
     if (deleteDownloadedVideos) {
       try {
         await Promise.all(
-          downloadedVideoPaths.map((file) =>
-            deleteFile(`${file}${targetFormat}`)
-          )
+          downloadedVideoPaths.map((file) => {
+            deleteFile(`${file}${targetFormat}`);
+          })
         );
         console.log("All source videos were successfully deleted.");
       } catch (error) {
