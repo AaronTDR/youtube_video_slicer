@@ -40,7 +40,7 @@ const ytConcatenateSlices = async () => {
     await cutAndConcatenateVideo();
 
     // Delete temporary video
-    if (deleteDownloadedVideos) {
+    if (deleteDownloadedVideos === true) {
       try {
         await Promise.all(
           downloadedVideoPaths.map((file) => {
@@ -51,11 +51,13 @@ const ytConcatenateSlices = async () => {
       } catch (error) {
         console.error("Error deleting files:", error);
       }
-    }
-
-    // Source video routes
-    if (downloadedVideoPaths.filter((el) => el !== undefined).length) {
-      console.log("Source videos stored in the routes: ", downloadedVideoPaths);
+    } else {
+      if (downloadedVideoPaths.length) {
+        console.log(
+          "Source videos stored in the routes: ",
+          downloadedVideoPaths
+        );
+      }
     }
 
     console.log("-----DONE-----");
