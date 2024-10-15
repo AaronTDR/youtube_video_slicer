@@ -63,6 +63,12 @@ The `config` file contains the following configuration options:
   - **url**: YouTube URL of the video to process (if applicable).
   - **path**: Local file path of the video (if applicable).
 
+  Example of a timestamp format:
+
+```
+  { start: "HH:MM:SS.sss", end: "HH:MM:SS.sss" }
+```
+
 - **concurrencyLimit**: Maximum number of concurrent tasks the script can run simultaneously.
 
 - **targetFormat**: Format in which the generated video files will be saved (e.g., `.webm`).
@@ -73,14 +79,6 @@ The `config` file contains the following configuration options:
   - **generateThumbnail**: Boolean indicating whether to automatically generate a thumbnail for the short video.
 
 - **isYoutubeShort**: Boolean indicating whether the content being processed is a YouTube Short (`true` to enable).
-
-Example of a timestamp format:
-
-```
-[
-  { start: "HH:MM:SS.sss", end: "HH:MM:SS.sss" }
-]
-```
 
 ## Below is a brief description of the main internal processes
 
