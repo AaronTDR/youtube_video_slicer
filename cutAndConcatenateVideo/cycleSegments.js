@@ -65,10 +65,6 @@ const cycleSegments = async () => {
       const keyframes = [];
 
       result.stdout.split(/\r?\n/).forEach((keyframe) => {
-        // ! console.log(
-        // !  "🚀 ~ cycleSegments ~ timestampsWithPaths:",
-        //  ! timestampsWithPaths
-        // ! );
         if (keyframe.includes("K_")) {
           keyframes.push(parseFloat(keyframe.replace(",K__", "")));
         }
