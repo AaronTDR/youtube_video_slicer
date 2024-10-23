@@ -1,11 +1,9 @@
-import path from "path";
+import processTimestamp from "./processTimestamp.js";
 import { config } from "../config.js";
-import extractSegments from "./extractSegments.js";
 import {
   execP,
   updateUrlsWithPaths,
   processInBatches,
-  getSeconds,
   getExtension,
   equalStrings,
   getResolutions,
@@ -13,42 +11,6 @@ import {
 
 const { ffprobe_exe_path, workingFolderPath, timestamps, concurrencyLimit } =
   config;
-
-const processTimestamp = async (timestamp, sortableDate) => {
-  const extension = path.extname(timestamp.path);
-  try {
-    const command = `${config.ffprobe_exe_path} -loglevel error -select_streams v:0 -show_entries packet=pts_time,flags -of csv=print_section=0 ${timestamp.path}`;
-    const result = await execP(command, { maxBuffer: 1048576000 });
-
-    const keyframes = [];
-    result.stdout.split(/\r?\n/).forEach((keyframe) => {
-      if (keyframe.includes("K_")) {
-        keyframes.push(parseFloat(keyframe.replace(",K__", "")));
-      }
-    });
-
-    const timestampsInSeconds = {
-      start: getSeconds(timestamp.start),
-      end: getSeconds(timestamp.end),
-    };
-
-    const { file, commands } = await extractSegments(
-      timestamp.path,
-      timestampsInSeconds,
-      keyframes,
-      extension,
-      sortableDate
-    );
-
-    return { file, commands };
-  } catch (error) {
-    console.error(
-      `Error processing timestamp ${JSON.stringify(timestamp)}:`,
-      error
-    );
-    return null;
-  }
-};
 
 const cycleSegments = async () => {
   // Replaces all "url" properties of timestamp objects with the "path" property to maintain consistency across object types
