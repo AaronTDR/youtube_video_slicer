@@ -1,6 +1,5 @@
 import path from "path";
 import { config } from "../config.js";
-
 import extractSegments from "./extractSegments.js";
 import {
   execP,
@@ -15,6 +14,42 @@ import {
 const { ffprobe_exe_path, workingFolderPath, timestamps, concurrencyLimit } =
   config;
 
+const processTimestamp = async (timestamp, sortableDate) => {
+  const extension = path.extname(timestamp.path);
+  try {
+    const command = `${config.ffprobe_exe_path} -loglevel error -select_streams v:0 -show_entries packet=pts_time,flags -of csv=print_section=0 ${timestamp.path}`;
+    const result = await execP(command, { maxBuffer: 1048576000 });
+
+    const keyframes = [];
+    result.stdout.split(/\r?\n/).forEach((keyframe) => {
+      if (keyframe.includes("K_")) {
+        keyframes.push(parseFloat(keyframe.replace(",K__", "")));
+      }
+    });
+
+    const timestampsInSeconds = {
+      start: getSeconds(timestamp.start),
+      end: getSeconds(timestamp.end),
+    };
+
+    const { file, commands } = await extractSegments(
+      timestamp.path,
+      timestampsInSeconds,
+      keyframes,
+      extension,
+      sortableDate
+    );
+
+    return { file, commands };
+  } catch (error) {
+    console.error(
+      `Error processing timestamp ${JSON.stringify(timestamp)}:`,
+      error
+    );
+    return null;
+  }
+};
+
 const cycleSegments = async () => {
   // Replaces all "url" properties of timestamp objects with the "path" property to maintain consistency across object types
   const timestampsWithPaths = updateUrlsWithPaths(
@@ -28,14 +63,12 @@ const cycleSegments = async () => {
     const extensions = timestampsWithPaths.map((timestamp) =>
       getExtension(timestamp.path)
     );
-
     // Get resolutions
     const resolutions = await getResolutions(
       timestampsWithPaths,
       ffprobe_exe_path,
       execP
     );
-
     const resultExtensions = equalStrings(extensions);
     const resultResolutions = equalStrings(resolutions);
 
@@ -53,51 +86,33 @@ const cycleSegments = async () => {
 
   const sortableDate = new Date().toISOString().replace(/[:.]/g, "_");
 
-  const segmentPromises = [];
+  // Process timestamps in batches
+  const processTimestampBatch = async (batch) => {
+    return await Promise.all(
+      batch.map((timestamp) => processTimestamp(timestamp, sortableDate))
+    );
+  };
 
-  for (const timestamp of timestampsWithPaths) {
-    const extension = path.extname(timestamp.path);
-
-    try {
-      const command = `${config.ffprobe_exe_path} -loglevel error -select_streams v:0 -show_entries packet=pts_time,flags -of csv=print_section=0 ${timestamp.path}`;
-
-      const result = await execP(command, { maxBuffer: 1048576000 });
-      const keyframes = [];
-
-      result.stdout.split(/\r?\n/).forEach((keyframe) => {
-        if (keyframe.includes("K_")) {
-          keyframes.push(parseFloat(keyframe.replace(",K__", "")));
-        }
-      });
-
-      const timestampsInSeconds = {
-        start: getSeconds(timestamp.start),
-        end: getSeconds(timestamp.end),
-      };
-
-      const { file, commands } = await extractSegments(
-        timestamp.path,
-        timestampsInSeconds,
-        keyframes,
-        extension,
-        sortableDate
-      );
-
-      segmentPromises.push({ file, commands });
-    } catch (error) {
-      console.error(
-        `Error processing timestamp ${JSON.stringify(timestamp)}:`,
-        error
-      );
-    }
+  // Split timestamps into batches
+  const batches = [];
+  for (let i = 0; i < timestampsWithPaths.length; i += concurrencyLimit) {
+    batches.push(timestampsWithPaths.slice(i, i + concurrencyLimit));
   }
 
-  console.log(`Total segments prepared: ${segmentPromises.length}`);
+  // Process all batches sequentially
+  const results = [];
+  for (const batch of batches) {
+    const batchResults = await processTimestampBatch(batch);
+    results.push(...batchResults.filter((result) => result !== null));
+  }
 
-  const allCommands = segmentPromises.flatMap((segment) => segment.commands);
+  console.log(`Total segments prepared: ${results.length}`);
+
+  // Process all commands
+  const allCommands = results.flatMap((segment) => segment.commands);
   await processInBatches(allCommands, concurrencyLimit);
 
-  return segmentPromises.map((segment) => segment.file);
+  return results.map((segment) => segment.file);
 };
 
 export default cycleSegments;
