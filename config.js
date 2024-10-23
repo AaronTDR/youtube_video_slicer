@@ -1,26 +1,20 @@
 export const config = {
-  ffmpeg_exe_path: "",
-  ffprobe_exe_path: "",
-  workingFolderPath: "",
-  segmentsFolderPath: "",
-  deleteDownloadedVideos: false,
+  ffmpeg_exe_path: "ffmpeg",
+  ffprobe_exe_path: "ffprobe",
+  workingFolderPath: "C:/users/aaron/downloads/result/",
+  segmentsFolderPath: "C:/users/aaron/downloads/result/segments/",
+  deleteDownloadedVideos: true,
   timestamps: [
     {
-      start: "00:00:10.478",
-      end: "00:00:12.951",
-      url: "",
-    },
-    {
       start: "00:00:05.478",
-      end: "00:00:06.951",
-      path: "",
+      end: "00:00:15.951",
+      url: "",
     },
   ],
   concurrencyLimit: 2,
-  targetFormat: ".webm",
   shortsConfig: {
-    shortThumbnailPath: "",
-    generateThumbnail: false,
+    shortThumbnailPath: "C:/users/aaron/downloads/result/short_1.png",
+    generateThumbnail: true,
   },
-  isYoutubeShort: false,
+  isYoutubeShort: true,
 };

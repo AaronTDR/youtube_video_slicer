@@ -2,9 +2,9 @@ import fs from "fs";
 import youtubeShort from "./youtubeShort.js";
 import { config } from "../config.js";
 import { execP } from "../utils/functions.js";
+import { getTargetExtension } from "../extension.js";
 
-const { ffmpeg_exe_path, workingFolderPath, targetFormat, isYoutubeShort } =
-  config;
+const { ffmpeg_exe_path, workingFolderPath, isYoutubeShort } = config;
 
 async function concatenateSegments(file, videoName) {
   try {
@@ -12,7 +12,7 @@ async function concatenateSegments(file, videoName) {
     fs.writeFileSync(fileConcatFullPath, file);
 
     const fileNameOutputWithoutExtension = `_final_result_${videoName}`;
-    const fullPathOutputVideo = `${workingFolderPath}${fileNameOutputWithoutExtension}${targetFormat}`;
+    const fullPathOutputVideo = `${workingFolderPath}${fileNameOutputWithoutExtension}${getTargetExtension()}`;
     const concatCommand = `${ffmpeg_exe_path} -f concat -safe 0 -i ${fileConcatFullPath} -c copy ${fullPathOutputVideo}`;
     await execP(concatCommand);
 

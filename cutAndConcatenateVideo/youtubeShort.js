@@ -1,15 +1,15 @@
 import { execP } from "../utils/functions.js";
 import { config } from "../config.js";
+import { getTargetExtension } from "../extension.js";
 
-const { ffmpeg_exe_path, workingFolderPath, targetFormat, shortsConfig } =
-  config;
+const { ffmpeg_exe_path, workingFolderPath, shortsConfig } = config;
 
 const youtubeShort = async (fileNameOutput) => {
-  const blurredShortName = `${fileNameOutput}_BLURRED_top_bottom${targetFormat}`;
+  const blurredShortName = `${fileNameOutput}_BLURRED_top_bottom${getTargetExtension()}`;
   const blurredShortFullPathname = `${workingFolderPath}${blurredShortName}`;
 
   const command =
-    `${ffmpeg_exe_path} -i "${workingFolderPath}${fileNameOutput}${targetFormat}" ` +
+    `${ffmpeg_exe_path} -i "${workingFolderPath}${fileNameOutput}${getTargetExtension()}" ` +
     `-vf "split[original][copy];[copy]scale=-1:(ih*0.80)*(16/9)*(16/9),crop=w=ih*9/16,gblur=sigma=25[blurred];[blurred][original]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2" ` +
     `"${blurredShortFullPathname}"`;
   await execP(command);

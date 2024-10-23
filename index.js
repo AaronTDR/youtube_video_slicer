@@ -6,6 +6,7 @@ import {
   filterDuplicates,
   processFilteredResults,
 } from "./utils/functions.js";
+import { getTargetExtension } from "./extension.js";
 import { config } from "./config.js";
 
 const {
@@ -13,7 +14,6 @@ const {
   segmentsFolderPath,
   timestamps,
   deleteDownloadedVideos,
-  targetFormat,
 } = config;
 
 const ytConcatenateSlices = async () => {
@@ -44,7 +44,7 @@ const ytConcatenateSlices = async () => {
       try {
         await Promise.all(
           downloadedVideoPaths.map((file) => {
-            deleteFile(`${file}${targetFormat}`);
+            deleteFile(`${file}${getTargetExtension()}`);
           })
         );
         console.log("All source videos were successfully deleted.");

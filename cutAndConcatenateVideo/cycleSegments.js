@@ -9,6 +9,8 @@ import {
   getResolutions,
 } from "../utils/functions.js";
 
+import { setTargetExtension } from "../extension.js";
+
 const { ffprobe_exe_path, workingFolderPath, timestamps, concurrencyLimit } =
   config;
 
@@ -44,6 +46,10 @@ const cycleSegments = async () => {
         "The resolutions are not equal. At this time different resolutions in videos are not supported."
       );
     }
+
+    const targetFormat = extensions[0];
+    // Updates the target format once all formats are confirmed to be the same
+    setTargetExtension(targetFormat);
   }
 
   const sortableDate = new Date().toISOString().replace(/[:.]/g, "_");
