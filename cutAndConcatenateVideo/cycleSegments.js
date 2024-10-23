@@ -14,7 +14,7 @@ const { ffprobe_exe_path, workingFolderPath, timestamps, concurrencyLimit } =
 
 const cycleSegments = async () => {
   // Replaces all "url" properties of timestamp objects with the "path" property to maintain consistency across object types
-  const timestampsWithPaths = updateUrlsWithPaths(
+  const timestampsWithPaths = await updateUrlsWithPaths(
     workingFolderPath,
     timestamps
   );

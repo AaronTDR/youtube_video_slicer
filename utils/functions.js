@@ -1,4 +1,5 @@
 import fs from "fs";
+import fsPromises from "fs/promises";
 import path from "path";
 import { exec } from "child_process";
 
@@ -213,36 +214,40 @@ export const processFilteredResults = (
   return promises;
 };
 
-export function updateUrlsWithPaths(workingFolderPath, timestamps) {
-  const updatedTimestamps = timestamps.map((timestamp) => {
-    // Clone the object to avoid mutation of the original
-    const newTimestamp = { ...timestamp };
+export async function updateUrlsWithPaths(workingFolderPath, timestamps) {
+  try {
+    const files = await fsPromises.readdir(workingFolderPath);
 
-    if (newTimestamp.url) {
-      // Get the last 11 digits of the URL
-      const searchKey = newTimestamp.url.slice(-11);
+    const updatedTimestamps = await Promise.all(
+      timestamps.map(async (timestamp) => {
+        const newTimestamp = { ...timestamp };
 
-      // Find the file in the working directory
-      let foundPath = null;
-      const files = fs.readdirSync(workingFolderPath);
+        if (newTimestamp.url) {
+          try {
+            const searchKey = newTimestamp.url.slice(-11);
+            const matchingFile = files.find((file) => file.includes(searchKey));
 
-      for (const file of files) {
-        if (file.includes(searchKey)) {
-          foundPath = path.join(workingFolderPath, file);
-          break;
+            if (matchingFile) {
+              newTimestamp.path = path.join(workingFolderPath, matchingFile);
+              delete newTimestamp.url;
+            }
+          } catch (error) {
+            console.error(
+              `Error processing timestamp with URL ${newTimestamp.url}:`,
+              error
+            );
+          }
         }
-      }
 
-      // If the file was found, update the object
-      if (foundPath) {
-        newTimestamp.path = foundPath;
-        delete newTimestamp.url;
-      }
-    }
-    return newTimestamp;
-  });
+        return newTimestamp;
+      })
+    );
 
-  return updatedTimestamps;
+    return updatedTimestamps;
+  } catch (error) {
+    console.error("Error reading directory:", error);
+    throw error;
+  }
 }
 
 export const generateSafeFileName = () => {
