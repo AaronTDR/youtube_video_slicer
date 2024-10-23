@@ -71,8 +71,6 @@ The `config` file contains the following configuration options:
 
 - **concurrencyLimit**: Maximum number of concurrent tasks the script can run simultaneously.
 
-- **targetFormat**: Format in which the generated video files will be saved (e.g., `.webm`).
-
 - **shortsConfig**: Specific configuration for YouTube Shorts videos.
 
   - **shortThumbnailPath**: Path to the image used as a thumbnail for the short video.
