@@ -31,7 +31,6 @@ const ytConcatenateSlices = async () => {
         downloadVideoYtDlp
       )
     );
-
     // Filters null elements if they exist
     const downloadedVideoPaths = downloadResults.filter(
       (path) => path !== null
