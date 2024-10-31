@@ -1,6 +1,22 @@
 import fs from "fs";
 import fsPromises from "fs/promises";
 import path from "path";
+import { exec } from "child_process";
+
+export const execP = (command) => {
+  return new Promise((resolve, reject) => {
+    console.log(`Executing command: ${command}`);
+    exec(command, { maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`exec error: ${error}`);
+        reject(error);
+        return;
+      }
+      console.log(`Command completed: ${command}`);
+      resolve({ stdout, stderr });
+    });
+  });
+};
 
 // Returns the length of the video in HH:MM:SS format
 /*
@@ -99,51 +115,13 @@ export const getSeconds = (timestamp) => {
   return hours * 3600 + minutes * 60 + seconds + milliseconds / 1000;
 };
 
-// Convert seconds to timestamp
-export const secondsToTimestamp = (seconds) => {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const resultingSeconds = seconds % 60;
-
-  // Format timestamp
-  const format = (value) => (value < 10 ? `0${value}` : `${value}`);
-
-  return `${format(hours)}:${format(minutes)}:${format(resultingSeconds)}`;
-};
-
-// Replace special characters with underscores
-export const removeSpecialCharacters = (inputString) => {
-  const replaceSpacesRegex = /\s+/g;
-  const removeSpecialCharactersRegex = /[^\p{Letter}\d\-_]/gu;
-
-  const replacedSpaces = inputString.replace(replaceSpacesRegex, "_");
-
-  const cleanedString = replacedSpaces.replace(
-    removeSpecialCharactersRegex,
-    ""
-  );
-
-  return cleanedString;
-};
-
-// Get list of files in folder
-export const getFiles = async (directoryPath) => {
-  try {
-    const files = await fsPromises.readdir(directoryPath);
-    return files;
-  } catch (error) {
-    console.error("Error reading folder:", error.message);
-    throw error;
-  }
-};
-
 export const deleteFile = (directoryPath) => {
   return new Promise((resolve, reject) => {
     fs.unlink(directoryPath, (err) => {
       if (err) {
         reject(new Error(`"Error deleting the file:", ${err.message}`));
       } else {
-        console.log("File successfully deleted.");
+        console.log(`File ${directoryPath} successfully deleted.`);
         resolve();
       }
     });
@@ -151,53 +129,202 @@ export const deleteFile = (directoryPath) => {
 };
 
 // Get extension file
-export const getExtension = async (directoryPath, videoName) => {
-  try {
-    // Read the contents of the specified directory synchronously.
-    const files = await fsPromises.readdir(directoryPath);
-
-    // Find a file in the list that includes the specified videoName.
-    const foundFile = files.find((file) => file.includes(videoName));
-
-    if (foundFile) {
-      const videoExtension = path.extname(foundFile);
-      return videoExtension;
-    } else {
-      throw new Error(
-        `Video: '${videoName}' not found in directory: '${directoryPath}', the file extension could not be obtained `
-      );
-    }
-  } catch (error) {
-    console.error(error);
-  }
+export const getExtension = (filePath) => {
+  const videoExtension = path.extname(filePath);
+  return videoExtension;
 };
 
-// Run promises in batches
 export const processInBatches = async (tasks, limit) => {
   try {
     let batchNumber = 1;
     const results = [];
-    const executing = new Set();
 
-    console.log("\nNumber of batches to be processed: ", tasks.length);
+    console.log(`Total number of tasks: ${tasks.length}`);
 
-    for (const task of tasks) {
-      const p = task().then((result) => {
-        executing.delete(p);
-        return result;
+    for (let i = 0; i < tasks.length; i += limit) {
+      const batch = tasks.slice(i, i + limit);
+      console.log(
+        `Processing batch ${batchNumber}. Tasks in this batch: ${batch.length}`
+      );
+
+      const batchPromises = batch.map((task, index) => {
+        return task()
+          .then((result) => {
+            console.log(`Task ${i + index + 1} completed successfully`);
+            return result;
+          })
+          .catch((error) => {
+            console.error(
+              `Error in task ${i + index + 1} of batch ${batchNumber}:`,
+              error
+            );
+            return null;
+          });
       });
-      results.push(p);
-      executing.add(p);
 
-      if (executing.size >= limit) {
-        console.log("Processing batch of segments. Number: ", batchNumber);
-        await Promise.race(executing);
-        batchNumber++;
-      }
+      const batchResults = await Promise.all(batchPromises);
+      results.push(...batchResults.filter((result) => result !== null));
+
+      console.log(`Finished processing batch ${batchNumber}`);
+      batchNumber++;
     }
-    console.log("Processing batch of segments. Number: ", batchNumber);
-    return Promise.all(results);
+
+    console.log(`All batches processed. Total results: ${results.length}`);
+    return results;
   } catch (error) {
-    console.error(error);
+    console.error("Error in processInBatches:", error);
+  }
+};
+
+// Get ID from URL
+export const getIdFromUrl = (url) => {
+  const idMatch = url.match(/v=([a-zA-Z0-9_-]+)/);
+  return idMatch ? idMatch[1] : null;
+};
+
+// Filter duplicate items
+export const filterDuplicates = (timestamps) => {
+  const uniquePaths = new Set();
+  return timestamps.filter((item) => {
+    const path = item.url || item.path;
+    if (!uniquePaths.has(path)) {
+      uniquePaths.add(path);
+      return true;
+    }
+    return false;
+  });
+};
+
+// Filters the videos to be downloaded and returns an array of promises to perform the downloads simultaneously
+export const processFilteredResults = (
+  filteredResults,
+  workingFolderPath,
+  callback
+) => {
+  // Filters out elements that contain 'url' and lack 'path'
+  const filteredElements = filteredResults.filter(
+    (item) => item.url && !item.path
+  );
+
+  // Create a promise arrangement
+  const promises = filteredElements.map((element) =>
+    callback(element.url, workingFolderPath)
+  );
+
+  return promises;
+};
+
+export async function updateUrlsWithPaths(workingFolderPath, timestamps) {
+  try {
+    const files = await fsPromises.readdir(workingFolderPath);
+
+    const updatedTimestamps = await Promise.all(
+      timestamps.map(async (timestamp) => {
+        const newTimestamp = { ...timestamp };
+
+        if (newTimestamp.url) {
+          try {
+            const searchKey = newTimestamp.url.slice(-11);
+            const matchingFile = files.find((file) => file.includes(searchKey));
+
+            if (matchingFile) {
+              newTimestamp.path = path.join(workingFolderPath, matchingFile);
+              delete newTimestamp.url;
+            }
+          } catch (error) {
+            console.error(
+              `Error processing timestamp with URL ${newTimestamp.url}:`,
+              error
+            );
+          }
+        }
+
+        return newTimestamp;
+      })
+    );
+
+    return updatedTimestamps;
+  } catch (error) {
+    console.error("Error reading directory:", error);
+    throw error;
+  }
+}
+
+export const generateSafeFileName = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
+
+  // Formato: YYYY-MM-DD_HH-MM-SS
+  return `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
+};
+
+// Helper function for FFmpeg time format
+export const formatFFmpegTime = (seconds) => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = (seconds % 60).toFixed(3);
+  return [hours, minutes, secs]
+    .map((unit) => String(unit).padStart(2, "0"))
+    .join(":");
+};
+
+// Check if all elements of the array are equal
+export function equalStrings(strings) {
+  const firstElement = strings[0];
+  for (const str of strings) {
+    if (str !== firstElement) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// Get the resolutions of the videos. Output (example: "1920x1080")
+export const getResolutions = async (timestampsWithPaths, ffprobe_exe_path) => {
+  const resolutions = [];
+
+  for (const { path } of timestampsWithPaths) {
+    try {
+      const command = `${ffprobe_exe_path} -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 ${path}`;
+
+      const { stdout, stderr } = await execP(command);
+
+      if (stderr) {
+        console.error("ffprobe error:", stderr);
+        continue;
+      }
+
+      const resolution = stdout.trim();
+      resolutions.push(resolution);
+    } catch (error) {
+      console.error(
+        `Error getting resolution for file ${path}.`,
+        error.message
+      );
+    }
+  }
+
+  return resolutions;
+};
+
+// Get the duration in seconds of a video file from the computer
+export const getVideoDurationFile = async (ffprobe_exe_path, path) => {
+  try {
+    const command = `${ffprobe_exe_path} -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 ${path}`;
+
+    const { stdout, stderr } = await execP(command);
+
+    if (stderr) {
+      console.error("ffprobe error:", stderr);
+    }
+
+    return stdout.trim();
+  } catch (error) {
+    console.error(`Error trying to get file duration. ${error.message}`);
   }
 };
