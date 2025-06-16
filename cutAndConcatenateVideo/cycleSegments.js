@@ -27,25 +27,26 @@ const cycleSegments = async () => {
     const extensions = timestampsWithPaths.map((timestamp) =>
       getExtension(timestamp.path)
     );
-    // Get resolutions
-    const resolutions = await getResolutions(
-      timestampsWithPaths,
-      ffprobe_exe_path,
-      execP
-    );
-    const resultExtensions = equalStrings(extensions);
-    const resultResolutions = equalStrings(resolutions);
+    // // Get resolutions
+    // const resolutions = await getResolutions(
+    //   timestampsWithPaths,
+    //   ffprobe_exe_path,
+    //   execP
+    // );
+    // const resultExtensions = equalStrings(extensions);
+    // const resultResolutions = equalStrings(resolutions);
 
-    if (!resultExtensions) {
-      throw new Error(
-        "The extensions are not equal. At this time different video formats of the selected videos are not supported."
-      );
-    }
-    if (!resultResolutions) {
-      throw new Error(
-        "The resolutions are not equal. At this time different resolutions in videos are not supported."
-      );
-    }
+    // if (!resultExtensions) {
+    // // if (false) {
+    //   throw new Error(
+    //     "The extensions are not equal. At this time different video formats of the selected videos are not supported."
+    //   );
+    // }
+    // if (!resultResolutions) {
+    //   throw new Error(
+    //     "The resolutions are not equal. At this time different resolutions in videos are not supported."
+    //   );
+    // }
 
     const targetFormat = extensions[0];
     // Updates the target format once all formats are confirmed to be the same
