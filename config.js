@@ -1,20 +1,25 @@
 export const config = {
-  ffmpeg_exe_path: "ffmpeg",
-  ffprobe_exe_path: "ffprobe",
-  workingFolderPath: "C:/users/aaron/downloads/result/",
-  segmentsFolderPath: "C:/users/aaron/downloads/result/segments/",
-  deleteDownloadedVideos: true,
+  ffmpeg_exe_path: "C:/ProgramData/chocolatey/lib/ffmpeg/tools/ffmpeg/bin/ffmpeg.exe",
+  ffprobe_exe_path: "C:/ProgramData/chocolatey/lib/ffmpeg/tools/ffmpeg/bin/ffprobe.exe",
+  workingFolderPath: "C:/projects/youtube_video_slicer/output/",
+  segmentsFolderPath: "C:/projects/youtube_video_slicer/output/segments/",
+  deleteDownloadedVideos: false,
   timestamps: [
     {
-      start: "00:00:05.478",
-      end: "00:00:15.951",
-      url: "",
+      start: "00:01:10.000",
+      end: "00:01:20.000", //
+      path: "E:/obs/testing/Halo_4___gKUJotXalGU.webm"
+    },
+    {
+      start: "00:05:30.000",
+      end: "00:05:55.000", //
+      path: "E:/obs/ghost_recon_wildlands_2025-06-05 21-44-37.mkv"
     },
   ],
-  concurrencyLimit: 2,
+  concurrencyLimit: 4,
   shortsConfig: {
-    shortThumbnailPath: "C:/users/aaron/downloads/result/short_1.png",
-    generateThumbnail: true,
+    shortThumbnailPath: "",
+    generateThumbnail: false,
   },
-  isYoutubeShort: true,
+  isYoutubeShort: false,
 };

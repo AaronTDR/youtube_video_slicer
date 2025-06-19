@@ -8,6 +8,7 @@ import {
 } from "./utils/functions.js";
 import { getTargetExtension } from "./extension.js";
 import { config } from "./config.js";
+import './utils/calculate-duration.js'
 
 const {
   workingFolderPath,
