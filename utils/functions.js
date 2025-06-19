@@ -290,7 +290,7 @@ export const getResolutions = async (timestampsWithPaths, ffprobe_exe_path) => {
 
   for (const { path } of timestampsWithPaths) {
     try {
-      const command = `${ffprobe_exe_path} -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 ${path}`;
+      const command = `${ffprobe_exe_path} -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "${path}"`;
 
       const { stdout, stderr } = await execP(command);
 
@@ -315,7 +315,7 @@ export const getResolutions = async (timestampsWithPaths, ffprobe_exe_path) => {
 // Get the duration in seconds of a video file from the computer
 export const getVideoDurationFile = async (ffprobe_exe_path, path) => {
   try {
-    const command = `${ffprobe_exe_path} -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 ${path}`;
+    const command = `${ffprobe_exe_path} -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${path}"`;
 
     const { stdout, stderr } = await execP(command);
 

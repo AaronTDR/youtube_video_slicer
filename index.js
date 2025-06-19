@@ -8,6 +8,7 @@ import {
 } from "./utils/functions.js";
 import { getTargetExtension } from "./extension.js";
 import { config } from "./config.js";
+import './utils/calculate-duration.js'
 
 const {
   workingFolderPath,
@@ -35,7 +36,7 @@ const ytConcatenateSlices = async () => {
     const downloadedVideoPaths = downloadResults.filter(
       (path) => path !== null
     );
-
+    console.log('Videos downloaded');
     await cutAndConcatenateVideo();
 
     // Delete temporary video
