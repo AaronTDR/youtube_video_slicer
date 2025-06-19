@@ -35,7 +35,7 @@ const ytConcatenateSlices = async () => {
     const downloadedVideoPaths = downloadResults.filter(
       (path) => path !== null
     );
-
+    console.log('Videos downloaded');
     await cutAndConcatenateVideo();
 
     // Delete temporary video

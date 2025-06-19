@@ -42,6 +42,17 @@ npm install
 
 The script will process the videos according to the specified timestamps, generating a new video for each timestamp in addition to concatenating the corresponding sections.
 
+
+## Script tested with
+| Test description |  Test result  |
+|:-----|:--------:|
+| A 1440p/60fps gameplay video downloaded from Youtube with .mp4 extension   | `TEST PASSED` |
+| A 1440p/60fps gameplay video downloaded from Youtube with .webm extension   |  `TEST PASSED`  |
+| One 1440p/60fps gameplay video downloaded from Youtube with .webm extension and one 1440p/60fps gameplay video downloaded from Youtube with .mp4 extension |  `TEST PASSED`  |
+| One 1440p/60fps gameplay video recorded with OBS with .mkv extension which contains multiple audio streams. Audio streams were saved in resulting video |  `TEST PASSED`  |
+| One 1440p/60fps gameplay video recorded with OBS with .mkv extension which contains multiple audio streams in combination with one 1440p/60fps gameplay video downloaded from Youtube with .webm extension that only contained one audio stream. The result included decent video quality, plus first audio stream from both .mkv and .webm videos. All other audio streams were droppped. |  `TEST DECENTLY PASSED` (only first audio stream for each source video was included)  |
+
+
 ## Object config values
 
 The `config` file contains the following configuration options:

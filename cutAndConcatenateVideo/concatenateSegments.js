@@ -13,7 +13,8 @@ async function concatenateSegments(file, videoName) {
 
     const fileNameOutputWithoutExtension = `_final_result_${videoName}`;
     const fullPathOutputVideo = `${workingFolderPath}${fileNameOutputWithoutExtension}${getTargetExtension()}`;
-    const concatCommand = `${ffmpeg_exe_path} -f concat -safe 0 -i ${fileConcatFullPath} -c copy ${fullPathOutputVideo}`;
+
+    const concatCommand = `${ffmpeg_exe_path} -f concat -safe 0 -i ${fileConcatFullPath} -map 0 -c copy ${fullPathOutputVideo}`;
     await execP(concatCommand);
 
     if (isYoutubeShort === true) {

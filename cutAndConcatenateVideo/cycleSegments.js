@@ -21,43 +21,53 @@ const cycleSegments = async () => {
     timestamps
   );
 
-  // Check if all extensions and resolutions are identical before continuing with the execution
-  if (timestampsWithPaths.length > 1) {
-    // Get extensions
-    const extensions = timestampsWithPaths.map((timestamp) =>
-      getExtension(timestamp.path)
-    );
-    // Get resolutions
-    const resolutions = await getResolutions(
-      timestampsWithPaths,
-      ffprobe_exe_path,
-      execP
-    );
-    const resultExtensions = equalStrings(extensions);
-    const resultResolutions = equalStrings(resolutions);
+  // Get extensions
+  const extensions = timestampsWithPaths.map((timestamp) =>
+    getExtension(timestamp.path)
+  );
+  // Get resolutions
+  const resolutions = await getResolutions(
+    timestampsWithPaths,
+    ffprobe_exe_path,
+    execP
+  );
+  const resultResolutions = equalStrings(resolutions);
 
-    if (!resultExtensions) {
-      throw new Error(
-        "The extensions are not equal. At this time different video formats of the selected videos are not supported."
-      );
-    }
-    if (!resultResolutions) {
-      throw new Error(
-        "The resolutions are not equal. At this time different resolutions in videos are not supported."
-      );
-    }
+  if (!resultResolutions) {
+    throw new Error(
+      "The resolutions are not equal. At this time different resolutions in videos are not supported."
+    );
+  }
 
-    const targetFormat = extensions[0];
-    // Updates the target format once all formats are confirmed to be the same
+  /**
+   * We now support videos with different extensions.
+   *
+   * For example, if we download two videos from Youtube, one is a .mp4
+   * and another one is .mkv, we allow that but we won't try to optimize
+   * the video cuts with keyframes. It will be the slower approach where
+   * each segment is fully encoded to .mp4 so that the resulting segments
+   * are all .mp4 x264 and we can concatenate them easily.
+   */
+  const containsMP4 = extensions.includes('.mp4');
+  const shouldAvoidOptimizations = containsMP4 || !extensions.every(extension => extension === extensions[0]);
+  console.log('\n\n------>shouldAvoidOptimizations: ', shouldAvoidOptimizations, '\n\n');
+
+  let targetFormat;
+  if (shouldAvoidOptimizations) {
+    targetFormat = '.mp4';
+    setTargetExtension(targetFormat);
+  } else {
+    targetFormat = extensions[0];
     setTargetExtension(targetFormat);
   }
+
 
   const sortableDate = new Date().toISOString().replace(/[:.]/g, "_");
 
   // Process timestamps in batches
   const processTimestampBatch = async (batch) => {
     return await Promise.all(
-      batch.map((timestamp) => processTimestamp(timestamp, sortableDate))
+      batch.map((timestamp) => processTimestamp(timestamp, sortableDate, shouldAvoidOptimizations))
     );
   };
 
